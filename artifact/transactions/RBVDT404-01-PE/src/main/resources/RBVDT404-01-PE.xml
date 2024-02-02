@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<transaction xmlns="http://www.w3schools.com" transactionName="RBVDT404" application="RBVD" version="01" country="PE" language="ES">
+	<paramsIn>
+		<parameter order="1" name="quotationId" mandatory="1" type="String" size="20"/>
+	</paramsIn>
+	<paramsOut>
+		<parameter order="1" name="id" mandatory="1" type="String" size="20"/>
+		<parameter order="2" name="quotationDate" mandatory="0" type="Date (YYYY-MM-DD)" size="0"/>
+		<dto order="3" name="employees" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EmployeesDTO" artifactId="RBVDC402">
+			<parameter order="1" name="areMajorityAge" mandatory="1" type="Boolean" size="0"/>
+			<parameter order="2" name="employeesNumber" mandatory="1" type="Long" size="40"/>
+			<dto order="3" name="monthlyPayrollAmount" mandatory="1" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
+				<parameter order="1" name="amount" mandatory="1" type="Long" size="30"/>
+				<parameter order="2" name="currency" mandatory="1" type="String" size="10"/>
+			</dto>
+		</dto>
+		<dto order="4" name="product" mandatory="1" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ProductDTO" artifactId="RBVDC402">
+			<parameter order="1" name="id" mandatory="1" type="String" size="40"/>
+			<parameter order="2" name="name" mandatory="0" type="String" size="60"/>
+			<list order="3" name="plans" mandatory="1">
+				<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PlanDTO" artifactId="RBVDC402">
+					<parameter order="1" name="id" mandatory="1" type="String" size="10"/>
+					<parameter order="2" name="name" mandatory="0" type="String" size="200"/>
+					<parameter order="3" name="isSelected" mandatory="0" type="Boolean" size="0"/>
+					<parameter order="4" name="isRecommended" mandatory="0" type="Boolean" size="0"/>
+					<dto order="5" name="totalInstallment" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
+						<parameter order="1" name="amount" mandatory="1" type="Double" size="18"/>
+						<parameter order="2" name="currency" mandatory="1" type="String" size="3"/>
+					</dto>
+					<list order="6" name="installmentPlans" mandatory="0">
+						<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.InstallmentPlansDTO" artifactId="RBVDC402">
+							<parameter order="1" name="paymentsTotalNumber" mandatory="0" type="Long" size="4"/>
+							<dto order="2" name="-paymentAmount" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
+								<parameter order="1" name="amount" mandatory="1" type="Double" size="18"/>
+								<parameter order="2" name="currency" mandatory="1" type="String" size="3"/>
+							</dto>
+							<dto order="3" name="period" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO" artifactId="RBVDC402">
+								<parameter order="1" name="id" mandatory="1" type="String" size="20"/>
+								<parameter order="2" name="name" mandatory="0" type="String" size="20"/>
+							</dto>
+						</dto>
+					</list>
+					<list order="7" name="coverages" mandatory="1">
+						<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.CoverageDTO" artifactId="RBVDC402">
+							<parameter order="1" name="id" mandatory="1" type="String" size="6"/>
+							<parameter order="2" name="name" mandatory="0" type="String" size="50"/>
+							<parameter order="3" name="description" mandatory="0" type="String" size="100"/>
+							<dto order="4" name="coverageType" mandatory="1" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO" artifactId="RBVDC402">
+								<parameter order="1" name="id" mandatory="1" type="String" size="15"/>
+								<parameter order="2" name="name" mandatory="0" type="String" size="15"/>
+							</dto>
+						</dto>
+					</list>
+					<list order="8" name="exclusions" mandatory="0">
+						<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO" artifactId="RBVDC402">
+							<parameter order="1" name="id" mandatory="1" type="String" size="6"/>
+							<parameter order="2" name="name" mandatory="0" type="String" size="50"/>
+							<parameter order="3" name="description" mandatory="0" type="String" size="60"/>
+						</dto>
+					</list>
+					<list order="9" name="benefits" mandatory="0">
+						<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO" artifactId="RBVDC402">
+							<parameter order="1" name="id" mandatory="1" type="String" size="6"/>
+							<parameter order="2" name="name" mandatory="0" type="String" size="50"/>
+							<parameter order="3" name="description" mandatory="0" type="String" size="200"/>
+						</dto>
+					</list>
+				</dto>
+			</list>
+		</dto>
+		<list order="5" name="contactDetails" mandatory="0">
+			<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDetailsDTO" artifactId="RBVDC402">
+				<dto order="1" name="contact" mandatory="1" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDTO" artifactId="RBVDC402">
+					<parameter order="1" name="contactDetailType" mandatory="1" type="String" size="10"/>
+					<parameter order="2" name="number" mandatory="1" type="String" size="40"/>
+					<parameter order="3" name="address" mandatory="1" type="String" size="100"/>
+				</dto>
+			</dto>
+		</list>
+		<dto order="6" name="validityPeriod" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ValidityPeriodDTO" artifactId="RBVDC402">
+			<parameter order="1" name="startDate" mandatory="1" type="Date (YYYY-MM-DD)" size="0"/>
+			<parameter order="2" name="endDate" mandatory="1" type="Date (YYYY-MM-DD)" size="0"/>
+		</dto>
+		<dto order="7" name="businessAgent" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO" artifactId="RBVDC402">
+			<parameter order="1" name="id" mandatory="1" type="String" size="30"/>
+			<parameter order="2" name="name" mandatory="0" type="String" size="30"/>
+		</dto>
+		<list order="8" name="participants" mandatory="0">
+			<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ParticipantDTO" artifactId="RBVDC402">
+				<parameter order="1" name="id" mandatory="0" type="String" size="20"/>
+				<parameter order="2" name="firstName" mandatory="0" type="String" size="100"/>
+				<parameter order="3" name="lastName" mandatory="0" type="String" size="100"/>
+				<parameter order="4" name="secondLastName" mandatory="0" type="String" size="100"/>
+				<dto order="5" name="identityDocument" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.IdentityDocumentDTO" artifactId="RBVDC402">
+					<dto order="1" name="documentType" mandatory="1" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO" artifactId="RBVDC402">
+						<parameter order="1" name="id" mandatory="1" type="String" size="30"/>
+						<parameter order="2" name="description" mandatory="0" type="String" size="200"/>
+					</dto>
+					<parameter order="2" name="documentNumber" mandatory="1" type="String" size="30"/>
+				</dto>
+				<dto order="6" name="participantType" mandatory="1" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO" artifactId="RBVDC402">
+					<parameter order="1" name="id" mandatory="1" type="String" size="20"/>
+					<parameter order="2" name="name" mandatory="0" type="String" size="40"/>
+				</dto>
+			</dto>
+		</list>
+	</paramsOut>
+	<description>getquotation</description>
+</transaction>

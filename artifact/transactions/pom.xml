@@ -12,5 +12,7 @@
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>TRANSACTIONS-onl_get_enterprise_quotation</name>
-	<modules/>
+	<modules>
+		<module>RBVDT404-01-PE</module>
+	</modules>
 </project>
