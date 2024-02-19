@@ -1,14 +1,23 @@
 package com.bbva.rbvd;
 
 import com.bbva.elara.domain.transaction.Context;
+import com.bbva.elara.domain.transaction.Severity;
 import com.bbva.elara.domain.transaction.TransactionParameter;
 import com.bbva.elara.domain.transaction.request.TransactionRequest;
 import com.bbva.elara.domain.transaction.request.body.CommonRequestBody;
 import com.bbva.elara.domain.transaction.request.header.CommonRequestHeader;
 import com.bbva.elara.test.osgi.DummyBundleContext;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
+
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.*;
+import com.bbva.rbvd.dto.enterpriseinsurance.createquotation.dto.CreateQuotationDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.GetQuotationDTO;
+import com.bbva.rbvd.lib.r407.RBVDR407;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +29,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
 /**
  * Test for transaction RBVDT40401PETransaction
  */
@@ -28,7 +43,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 		"classpath:/META-INF/spring/elara-test.xml",
 		"classpath:/META-INF/spring/RBVDT40401PETest.xml" })
 public class RBVDT40401PETransactionTest {
-
+	@Resource(name = "rbvdR407")
+	private RBVDR407 rbvdR407;
 	@Autowired
 	private RBVDT40401PETransaction transaction;
 
@@ -58,13 +74,75 @@ public class RBVDT40401PETransactionTest {
 		// Set TransactionRequest
 		this.transaction.getContext().setTransactionRequest(transactionRequest);
 	}
+	private GetQuotationDTO createInput(){
+		GetQuotationDTO input = new GetQuotationDTO();
+		ProductDTO product = new ProductDTO();
+		List<ContactDetailsDTO> contactDetails = new ArrayList<>();
+		List<ParticipantDTO> participantes = new ArrayList<>();
+		ContactDetailsDTO contacto1 = new ContactDetailsDTO();
+		ContactDTO contacto = new ContactDTO();
+		ParticipantDTO participnt1 = new ParticipantDTO();
+		DescriptionDTO participantType = new DescriptionDTO();
+		EmployeesDTO employees = new EmployeesDTO();
+		DescriptionDTO busunessAgent = new DescriptionDTO();
+
+		participnt1.setId("P041360");
+		IdentityDocumentDTO document = new IdentityDocumentDTO();
+		DescriptionDTO documentType = new DescriptionDTO();
+		document.setDocumentNumber("73186739");
+		documentType.setId("DNI");
+		documentType.setDescription("DNI");
+		document.setDocumentType(documentType);
+		participnt1.setIdentityDocument(document);
+		participantType.setId("123456");
+		participantType.setName("Contract");
+		participnt1.setParticipantType(participantType);
+		participantes.add(participnt1);
+		busunessAgent.setId("P021322");
+		employees.setAreMajorityAge(true);
+		employees.setEmployeesNumber(Long.valueOf(30));
+		AmountDTO monthlyPayrollAmount = new AmountDTO();
+		monthlyPayrollAmount.setCurrency("PEN");
+		monthlyPayrollAmount.setAmount(BigDecimal.valueOf(20.00));
+		employees.setMonthlyPayrollAmount((monthlyPayrollAmount));
+		product.setId("503");
+		contacto.setContactDetailType("EMAIL");
+		contacto.setAddress("marco.yovera@bbva.com");
+		contacto1.setContact(contacto);
+		contactDetails.add(contacto1);
+
+		input.setProduct(product);
+		input.setParticipantDTO(participantes);
+		input.setQuotationReference("2312313");
+		input.setEmployees(employees);
+		input.setBusinessAgent(busunessAgent);
+		input.setContactDetailsDTO(contactDetails);
+
+
+		return input;
+	}
 
 	@Test
-	public void testNotNull(){
-	    // Example to Mock the Header
+	public void testNotNull() throws IOException {
+		// Example to Mock the Header
 		// Mockito.doReturn("ES").when(header).getHeaderParameter(RequestHeaderParamsName.COUNTRYCODE);
+
+
+		GetQuotationDTO response = createInput();
+		when(this.rbvdR407.executeGetQuotation(anyString())).thenReturn(response);
 		Assert.assertNotNull(this.transaction);
 		this.transaction.execute();
+		assertEquals(Severity.OK, this.transaction.getSeverity());
+	}
+	@Test
+	public void testNull() {
+
+		assertNotNull(this.transaction);
+
+		when(rbvdR407.executeGetQuotation(anyString ())).thenReturn(null);
+		this.transaction.execute();
+
+		assertEquals(Severity.ENR, this.transaction.getSeverity());
 	}
 
 	// Add Parameter to Transaction

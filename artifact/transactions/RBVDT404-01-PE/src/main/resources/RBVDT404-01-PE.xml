@@ -30,7 +30,7 @@
 					<list order="6" name="installmentPlans" mandatory="0">
 						<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.InstallmentPlansDTO" artifactId="RBVDC402">
 							<parameter order="1" name="paymentsTotalNumber" mandatory="0" type="Long" size="4"/>
-							<dto order="2" name="-paymentAmount" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
+							<dto order="2" name="paymentAmount" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
 								<parameter order="1" name="amount" mandatory="1" type="Double" size="18"/>
 								<parameter order="2" name="currency" mandatory="1" type="String" size="3"/>
 							</dto>
@@ -104,6 +104,11 @@
 				</dto>
 			</dto>
 		</list>
+		<parameter order="9" name="quotationReference" mandatory="0" type="String" size="30"/>
+		<dto order="10" name="status" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO" artifactId="RBVDC402">
+			<parameter order="1" name="id" mandatory="1" type="String" size="30"/>
+			<parameter order="2" name="name" mandatory="0" type="String" size="30"/>
+		</dto>
 	</paramsOut>
 	<description>getquotation</description>
 </transaction>

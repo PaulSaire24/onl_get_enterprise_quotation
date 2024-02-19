@@ -1,31 +1,60 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.bbva.rbvd</groupId>
-		<artifactId>TRANSACTIONS-onl_get_enterprise_quotation</artifactId>
+		<artifactId>LIBRARIES-onl_get_enterprise_quotation</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 	<groupId>com.bbva.rbvd</groupId>
-	<artifactId>RBVDT404-01-PE</artifactId>
+	<artifactId>RBVDR407IMPL</artifactId>
+	<name>RBVDR407IMPL</name>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
-	<description>getquotation</description>
+	<description>Lib to get a quotation</description>
 	<properties>
-		<arc.osgi.version>0.0</arc.osgi.version>
+		<osgi.version.manifest>0.0</osgi.version.manifest>
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>com.bbva.elara</groupId>
-			<artifactId>elara-transaction</artifactId>
-			<version>${apx.core.online.version}</version>
-			<scope>compile</scope>
+			<groupId>com.bbva.rbvd</groupId>
+			<artifactId>RBVDR407</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.bbva.elara</groupId>
-			<artifactId>elara-test</artifactId>
+			<artifactId>elara-aspect</artifactId>
 			<version>${apx.core.online.version}</version>
-			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.bbva.elara</groupId>
+			<artifactId>elara-library</artifactId>
+			<version>${apx.core.online.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.gemini</groupId>
+			<artifactId>org.eclipse.gemini.blueprint.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.framework</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.bbva.elara</groupId>
+			<artifactId>elara-configuration-manager-application</artifactId>
+			<version>${apx.core.online.version}</version>
 		</dependency>
 		<!-- Test dependencies -->
 		<dependency>
@@ -34,26 +63,22 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.osgi</groupId>
+			<artifactId>spring-osgi-mock</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.bbva.elara</groupId>
+			<artifactId>elara-test</artifactId>
+			<version>${apx.core.online.version}</version>
+			<scope>test</scope>
+		</dependency>
 		<!-- End test dependencies -->
-		<dependency>
-			<groupId>com.bbva.rbvd.dto.enterpriseinsurance</groupId>
-			<artifactId>RBVDC402</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.bbva.rbvd</groupId>
-			<artifactId>RBVDR407</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 	<build>
 		<finalName>${project.artifactId}</finalName>
@@ -64,14 +89,19 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Bundle-Activator>com.bbva.rbvd.RBVDT40401PETransaction</Bundle-Activator>
-						<Bundle-Category>transaction</Bundle-Category>
+						<Bundle-SymbolicName>${project.artifactId}-${project.version}</Bundle-SymbolicName>
+						<Bundle-Category>library</Bundle-Category>
 						<Export-Package>
-							!*;version="${arc.osgi.version}"
+							!*;version="${osgi.version.manifest}"
 						</Export-Package>
 						<Import-Package>
-							*;version="${arc.osgi.version}"
+							com.bbva.elara.aspect;version="${osgi.version.manifest}",
+							org.aopalliance.aop;version="${osgi.version.manifest}",
+							org.osgi.framework;version="${osgi.version.manifest}",
+							org.springframework.aop;version="${osgi.version.manifest}",
+							org.springframework.aop.framework;version="${osgi.version.manifest}",
+							spring;version="${osgi.version.manifest}",
+							*;version="${osgi.version.manifest}"
 						</Import-Package>
 					</instructions>
 				</configuration>
@@ -81,14 +111,14 @@
 				<executions>
 					<execution>
 						<phase>install</phase>
+						<configuration>
+							<tasks>
+								<copy todir="${outputDirectoryLibraries}" file="./target/${project.artifactId}.jar" />
+							</tasks>
+							</configuration>
 						<goals>
 							<goal>run</goal>
 						</goals>
-						<configuration>
-							<tasks>
-								<copy file="./target/${project.artifactId}.jar" todir="${outputDirectoryTransactions}"/>
-							</tasks>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>

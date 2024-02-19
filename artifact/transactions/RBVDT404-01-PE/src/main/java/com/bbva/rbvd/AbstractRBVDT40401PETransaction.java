@@ -81,4 +81,18 @@ public abstract class AbstractRBVDT40401PETransaction extends AbstractTransactio
 	protected void setParticipants(final List<ParticipantDTO> field){
 		this.addParameter("participants", field);
 	}
+
+	/**
+	 * Set value for String output parameter quotationReference
+	 */
+	protected void setQuotationreference(final String field){
+		this.addParameter("quotationReference", field);
+	}
+
+	/**
+	 * Set value for DescriptionDTO output parameter status
+	 */
+	protected void setStatus(final DescriptionDTO field){
+		this.addParameter("status", field);
+	}
 }
