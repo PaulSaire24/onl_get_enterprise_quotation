@@ -2,6 +2,7 @@ package com.bbva.rbvd.lib.r407.service.dao;
 
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.CoverageDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PlanDTO;
 import com.bbva.rbvd.lib.r407.utils.ContansUtils;
 
@@ -22,7 +23,11 @@ public class PlanDAO {
             totalInstallments.setAmount(BigDecimal.valueOf(ContansUtils.rimacInput.AMOUNT));
             totalInstallments.setCurrency(ContansUtils.rimacInput.CURRENCY);
             plan.setTotalInstallment(totalInstallments);
+            DescriptionDTO coverageType = new DescriptionDTO();
+            coverageType.setId("01");
+            coverageType.setName("COBERTURA1");
             coberturas.setId("9675");
+            coberturas.setCoverageType(coverageType);
             listaCoberturas.add(coberturas);
             plan.setCoverages(listaCoberturas);
             listaPlanes.add(plan);
