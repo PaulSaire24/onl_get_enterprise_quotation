@@ -18,9 +18,14 @@ public class ConsumerInternalService {
     }
     public ParticipantDTO getParticipantInformation (String id){
         ParticipantDTO participant ;
+        DescriptionDTO participantType = new DescriptionDTO();
+        participantType.setId("01");
+        participantType.setName("ASEGURADO");
         ParticipantDAO participantDAO = new ParticipantDAO();
         participant = participantDAO.getParticipantBDInfo();
         participant.setId(id);
+        participant.setParticipantType(participantType);
+
         return participant;
     }
     public ProductDTO getProduct (String id){

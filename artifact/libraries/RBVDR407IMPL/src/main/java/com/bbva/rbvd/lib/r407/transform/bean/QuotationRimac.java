@@ -37,6 +37,7 @@ public class QuotationRimac {
         nombreParticipante=consumerInternalService.getParticipantInformation("P400212");
         listaParticipantes.add(nombreParticipante);
 
+
         return listaParticipantes;
     }
     public static EmployeesDTO listEmployees(){
