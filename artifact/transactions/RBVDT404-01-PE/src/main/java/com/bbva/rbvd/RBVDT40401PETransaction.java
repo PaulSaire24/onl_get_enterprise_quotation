@@ -38,7 +38,7 @@ RBVDT40401PETransaction extends AbstractRBVDT40401PETransaction {
 		GetQuotationDTO response = rbvdR407.executeGetQuotation(quotationId);
 
 		if(nonNull(response)) {
-			LOGGER.info("RBVDT40201PETransaction - Response : {}",response.toString());
+			LOGGER.info("RBVDT40201PETransaction - Response : {}",response);
 			LOGGER.info("RBVDT40201PETransaction - product: {}",response.getProduct());
 			LOGGER.info("RBVDT40201PETransaction - quotation reference : {}",response.getQuotationReference());
 			LOGGER.info("RBVDT40201PETransaction - contactdetail : {}",response.getContactDetailsDTO());

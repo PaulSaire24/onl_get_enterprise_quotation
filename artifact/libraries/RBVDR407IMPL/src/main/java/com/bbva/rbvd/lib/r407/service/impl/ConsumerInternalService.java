@@ -26,6 +26,7 @@ public class ConsumerInternalService {
     public ProductDTO getProduct (String id){
         ProductDTO product ;
         ProductDAO productDAO = new ProductDAO();
+
         product = productDAO.getProductInfo();
         return product;
     }

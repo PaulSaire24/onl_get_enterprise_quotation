@@ -7,6 +7,7 @@ public class ProductDAO {
 
     public ProductDTO getProductInfo(){
         ProductDTO productDTO = new ProductDTO();
+        productDTO.setId("403");
         productDTO.setName(ContansUtils.mockInternalData.PRODUCT_NAME);
         return productDTO;
     }
