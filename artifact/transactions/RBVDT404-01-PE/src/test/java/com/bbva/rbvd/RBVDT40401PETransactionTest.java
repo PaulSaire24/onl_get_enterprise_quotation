@@ -9,14 +9,12 @@ import com.bbva.elara.domain.transaction.request.header.CommonRequestHeader;
 import com.bbva.elara.test.osgi.DummyBundleContext;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
 
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.*;
-import com.bbva.rbvd.dto.enterpriseinsurance.createquotation.dto.CreateQuotationDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.GetQuotationDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.QuotationDetailDTO;
 import com.bbva.rbvd.lib.r407.RBVDR407;
 import org.junit.Assert;
 import org.junit.Before;
@@ -74,8 +72,8 @@ public class RBVDT40401PETransactionTest {
 		// Set TransactionRequest
 		this.transaction.getContext().setTransactionRequest(transactionRequest);
 	}
-	private GetQuotationDTO createInput(){
-		GetQuotationDTO input = new GetQuotationDTO();
+	private QuotationDetailDTO createInput(){
+		QuotationDetailDTO input = new QuotationDetailDTO();
 		ProductDTO product = new ProductDTO();
 		List<ContactDetailsDTO> contactDetails = new ArrayList<>();
 		List<ParticipantDTO> participantes = new ArrayList<>();
@@ -103,7 +101,7 @@ public class RBVDT40401PETransactionTest {
 		employees.setEmployeesNumber(Long.valueOf(30));
 		AmountDTO monthlyPayrollAmount = new AmountDTO();
 		monthlyPayrollAmount.setCurrency("PEN");
-		monthlyPayrollAmount.setAmount(BigDecimal.valueOf(20.00));
+		monthlyPayrollAmount.setAmount(20.00);
 		employees.setMonthlyPayrollAmount((monthlyPayrollAmount));
 		product.setId("503");
 		contacto.setContactDetailType("EMAIL");
@@ -112,11 +110,11 @@ public class RBVDT40401PETransactionTest {
 		contactDetails.add(contacto1);
 
 		input.setProduct(product);
-		input.setParticipantDTO(participantes);
+		input.setParticipants(participantes);
 		input.setQuotationReference("2312313");
 		input.setEmployees(employees);
 		input.setBusinessAgent(busunessAgent);
-		input.setContactDetailsDTO(contactDetails);
+		input.setContactDetails(contactDetails);
 
 
 		return input;
@@ -128,8 +126,8 @@ public class RBVDT40401PETransactionTest {
 		// Mockito.doReturn("ES").when(header).getHeaderParameter(RequestHeaderParamsName.COUNTRYCODE);
 
 
-		GetQuotationDTO response = createInput();
-		when(this.rbvdR407.executeGetQuotation(anyString())).thenReturn(response);
+		QuotationDetailDTO response = createInput();
+		when(this.rbvdR407.executeGetQuotationLogic(anyString(),anyString())).thenReturn(response);
 		Assert.assertNotNull(this.transaction);
 		this.transaction.execute();
 		assertEquals(Severity.OK, this.transaction.getSeverity());
@@ -139,7 +137,7 @@ public class RBVDT40401PETransactionTest {
 
 		assertNotNull(this.transaction);
 
-		when(rbvdR407.executeGetQuotation(anyString ())).thenReturn(null);
+		when(rbvdR407.executeGetQuotationLogic(anyString(),anyString())).thenReturn(null);
 		this.transaction.execute();
 
 		assertEquals(Severity.ENR, this.transaction.getSeverity());

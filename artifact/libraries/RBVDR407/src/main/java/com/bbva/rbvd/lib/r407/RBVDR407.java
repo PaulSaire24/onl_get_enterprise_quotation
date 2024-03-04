@@ -1,6 +1,6 @@
 package com.bbva.rbvd.lib.r407;
 
-import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.GetQuotationDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.QuotationDetailDTO;
 
 /**
  * The  interface RBVDR407 class...
@@ -8,8 +8,8 @@ import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.GetQuotationDTO;
 public interface RBVDR407 {
 
 	/**
-	 * The execute method...
+	 * The executeGetQuotationLogic method...
 	 */
-	GetQuotationDTO executeGetQuotation(String quotationId);
+	QuotationDetailDTO executeGetQuotationLogic(String quotationId,String traceId);
 
 }

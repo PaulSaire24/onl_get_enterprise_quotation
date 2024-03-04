@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.bbva.rbvd</groupId>
@@ -79,6 +79,21 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- End test dependencies -->
+		<dependency>
+			<groupId>com.bbva.pisd</groupId>
+			<artifactId>PISDR401</artifactId>
+			<version>0.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bbva.pisd</groupId>
+			<artifactId>PISDR014</artifactId>
+			<version>0.11.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bbva.elara</groupId>
+			<artifactId>elara-utility-api-connector</artifactId>
+			<version>${apx.api.connector.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>${project.artifactId}</finalName>
@@ -90,16 +105,20 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}-${project.version}</Bundle-SymbolicName>
-						<Bundle-Category>library</Bundle-Category>
+						<Bundle-Category>library-extapiconnector</Bundle-Category>
 						<Export-Package>
 							!*;version="${osgi.version.manifest}"
 						</Export-Package>
 						<Import-Package>
 							com.bbva.elara.aspect;version="${osgi.version.manifest}",
+							javax.xml.transform;version="${osgi.version.manifest}",
 							org.aopalliance.aop;version="${osgi.version.manifest}",
 							org.osgi.framework;version="${osgi.version.manifest}",
 							org.springframework.aop;version="${osgi.version.manifest}",
 							org.springframework.aop.framework;version="${osgi.version.manifest}",
+							org.springframework.core;version="${osgi.version.manifest}",
+							org.springframework.http;version="${osgi.version.manifest}",
+							org.springframework.web.client;version="${osgi.version.manifest}",
 							spring;version="${osgi.version.manifest}",
 							*;version="${osgi.version.manifest}"
 						</Import-Package>
@@ -113,9 +132,9 @@
 						<phase>install</phase>
 						<configuration>
 							<tasks>
-								<copy todir="${outputDirectoryLibraries}" file="./target/${project.artifactId}.jar" />
+								<copy todir="${outputDirectoryLibraries}" file="./target/${project.artifactId}.jar"/>
 							</tasks>
-							</configuration>
+						</configuration>
 						<goals>
 							<goal>run</goal>
 						</goals>

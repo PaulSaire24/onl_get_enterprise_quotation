@@ -72,8 +72,8 @@
 			<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDetailsDTO" artifactId="RBVDC402">
 				<dto order="1" name="contact" mandatory="1" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDTO" artifactId="RBVDC402">
 					<parameter order="1" name="contactDetailType" mandatory="1" type="String" size="10"/>
-					<parameter order="2" name="number" mandatory="1" type="String" size="40"/>
-					<parameter order="3" name="address" mandatory="1" type="String" size="100"/>
+					<parameter order="2" name="number" mandatory="0" type="String" size="40"/>
+					<parameter order="3" name="address" mandatory="0" type="String" size="100"/>
 				</dto>
 			</dto>
 		</list>
@@ -87,7 +87,7 @@
 		</dto>
 		<list order="8" name="participants" mandatory="0">
 			<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ParticipantDTO" artifactId="RBVDC402">
-				<parameter order="1" name="id" mandatory="0" type="String" size="20"/>
+				<parameter order="1" name="id" mandatory="1" type="String" size="20"/>
 				<parameter order="2" name="firstName" mandatory="0" type="String" size="100"/>
 				<parameter order="3" name="lastName" mandatory="0" type="String" size="100"/>
 				<parameter order="4" name="secondLastName" mandatory="0" type="String" size="100"/>
