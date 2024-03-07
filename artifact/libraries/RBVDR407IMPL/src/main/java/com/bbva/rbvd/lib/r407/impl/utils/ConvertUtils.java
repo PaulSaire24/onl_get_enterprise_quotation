@@ -16,5 +16,10 @@ public class ConvertUtils {
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
+    public static LocalDate convertStringDateToLocalDate(String dateStr){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return LocalDate.parse(dateStr,formatter);
+    }
+
 
 }

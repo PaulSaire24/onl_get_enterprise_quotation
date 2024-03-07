@@ -13,6 +13,7 @@ import com.bbva.pisd.dto.insurancedao.join.QuotationJoinQuotationModDTO;
 import com.bbva.pisd.lib.r014.PISDR014;
 import com.bbva.pisd.lib.r401.PISDR401;
 import com.bbva.pisd.lib.r601.PISDR601;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.QuotationDetailDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponseQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.mock.MockData;
@@ -136,7 +137,7 @@ public class RBVDR407Test {
 	@Test
 	public void executeGetQuotationLogic_TestOK() {
 
-		QuotationDetailDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
 
 		Assert.assertNotNull(response);
 
@@ -187,7 +188,7 @@ public class RBVDR407Test {
 						Collections.singletonMap("POLICY_QUOTA_INTERNAL_ID", quotationId)))
 				.thenReturn(mapProductInfo);
 
-		QuotationDetailDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
 
 		Assert.assertNull(response);
 		Assert.assertNotNull(context.getAdviceList());
@@ -203,7 +204,7 @@ public class RBVDR407Test {
 				new ResponseEntity<>(responseRimac, HttpStatus.BAD_REQUEST)
 		);
 
-		QuotationDetailDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
 
 		Assert.assertNull(response);
 		Assert.assertNotNull(context.getAdviceList());
@@ -221,7 +222,7 @@ public class RBVDR407Test {
 				new ResponseEntity<>(responseRimac, HttpStatus.OK)
 		);
 
-		QuotationDetailDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
 
 		Assert.assertNotNull(response);
 		Assert.assertNotNull(response.getProduct());
@@ -238,7 +239,7 @@ public class RBVDR407Test {
 				new ResponseEntity<>(responseRimac, HttpStatus.OK)
 		);
 
-		QuotationDetailDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
 
 		Assert.assertNotNull(response);
 		Assert.assertNotNull(response.getProduct());
@@ -258,7 +259,7 @@ public class RBVDR407Test {
 				new ResponseEntity<>(responseRimac, HttpStatus.OK)
 		);
 
-		QuotationDetailDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
 
 		Assert.assertNotNull(response);
 		Assert.assertNotNull(response.getProduct());
@@ -275,7 +276,7 @@ public class RBVDR407Test {
 
 		Mockito.when(this.pisdr601.executeFindQuotationInfoByQuotationId(anyString())).thenReturn(quotationFromDB);
 
-		QuotationDetailDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
 
 		Assert.assertNotNull(response);
 		Assert.assertNotNull(response.getQuotationDate());
@@ -290,7 +291,7 @@ public class RBVDR407Test {
 
 		Mockito.when(this.pisdr601.executeFindQuotationInfoByQuotationId(anyString())).thenReturn(null);
 
-		QuotationDetailDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId,"traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId,"traceId");
 
 		Assert.assertNull(response);
 		Assert.assertNotNull(context.getAdviceList());

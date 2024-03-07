@@ -6,7 +6,19 @@ import com.bbva.pisd.dto.insurance.amazon.SignatureAWS;
 import com.bbva.pisd.dto.insurancedao.entities.QuotationEntity;
 import com.bbva.pisd.dto.insurancedao.entities.QuotationModEntity;
 import com.bbva.pisd.dto.insurancedao.join.QuotationJoinQuotationModDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.*;
+
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ParticipantDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.IdentityDocumentDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDetailsDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ProductDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PlanDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.CoverageDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.InstallmentPlansDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ValidityPeriodDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
 
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.AssistanceBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.CoverageBO;
@@ -14,7 +26,6 @@ import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.PlanBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.FinancingBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.InstallmentFinancingBO;
 
-import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.QuotationDetailDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.InputQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponsePayloadQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponseQuotationDetailBO;
@@ -54,11 +65,11 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 	 * The execute method...
 	 */
 	@Override
-	public QuotationDetailDTO executeGetQuotationLogic(String quotationId,String traceId) {
+	public EnterpriseQuotationDTO executeGetQuotationLogic(String quotationId,String traceId) {
 
 		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | START");
 
-		QuotationDetailDTO response = new QuotationDetailDTO();
+		EnterpriseQuotationDTO response = new EnterpriseQuotationDTO();
 
 		Map<String, Object> responseProductMap = getProductInformation(quotationId);
 
@@ -94,7 +105,7 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		}
 
 		response.setId(quotationId);
-		response.setQuotationDate(ConvertUtils.convertStringDateToDate(responseQuotation.getQuotation().getQuoteDate()));
+		response.setQuotationDate(ConvertUtils.convertStringDateToLocalDate(responseQuotation.getQuotation().getQuoteDate()));
 		response.setEmployees(null);
 		response.setProduct(createProductDTO(responseRimac.getPayload(),responseQuotation));
 		response.setContactDetails(createContactDetailsDTO(responseQuotation.getQuotationMod()));

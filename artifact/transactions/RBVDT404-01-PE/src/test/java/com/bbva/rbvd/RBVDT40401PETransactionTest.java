@@ -9,6 +9,7 @@ import com.bbva.elara.domain.transaction.request.header.CommonRequestHeader;
 import com.bbva.elara.test.osgi.DummyBundleContext;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
@@ -72,8 +73,8 @@ public class RBVDT40401PETransactionTest {
 		// Set TransactionRequest
 		this.transaction.getContext().setTransactionRequest(transactionRequest);
 	}
-	private QuotationDetailDTO createInput(){
-		QuotationDetailDTO input = new QuotationDetailDTO();
+	private EnterpriseQuotationDTO createInput(){
+		EnterpriseQuotationDTO input = new EnterpriseQuotationDTO();
 		ProductDTO product = new ProductDTO();
 		List<ContactDetailsDTO> contactDetails = new ArrayList<>();
 		List<ParticipantDTO> participantes = new ArrayList<>();
@@ -115,7 +116,7 @@ public class RBVDT40401PETransactionTest {
 		input.setEmployees(employees);
 		input.setBusinessAgent(busunessAgent);
 		input.setContactDetails(contactDetails);
-
+		input.setQuotationDate(LocalDate.now());
 
 		return input;
 	}
@@ -126,7 +127,7 @@ public class RBVDT40401PETransactionTest {
 		// Mockito.doReturn("ES").when(header).getHeaderParameter(RequestHeaderParamsName.COUNTRYCODE);
 
 
-		QuotationDetailDTO response = createInput();
+		EnterpriseQuotationDTO response = createInput();
 		when(this.rbvdR407.executeGetQuotationLogic(anyString(),anyString())).thenReturn(response);
 		Assert.assertNotNull(this.transaction);
 		this.transaction.execute();

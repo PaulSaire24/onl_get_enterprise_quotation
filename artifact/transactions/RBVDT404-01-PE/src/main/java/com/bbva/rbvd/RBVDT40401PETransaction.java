@@ -1,5 +1,6 @@
 package com.bbva.rbvd;
 
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.QuotationDetailDTO;
 import com.bbva.rbvd.lib.r407.RBVDR407;
 import com.bbva.elara.domain.transaction.RequestHeaderParamsName;
@@ -8,6 +9,10 @@ import com.bbva.elara.domain.transaction.response.HttpResponseCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+import java.sql.Date;
+import java.time.Instant;
+import java.time.ZoneId;
 
 import static java.util.Objects.nonNull;
 
@@ -29,13 +34,13 @@ public class RBVDT40401PETransaction extends AbstractRBVDT40401PETransaction {
 		String quotationId = this.getQuotationid();
 		String traceId = (String) this.getContext().getTransactionRequest().getHeader().getHeaderParameter(RequestHeaderParamsName.REQUESTID);
 
-		QuotationDetailDTO response = rbvdR407.executeGetQuotationLogic(quotationId,traceId);
+		EnterpriseQuotationDTO response = rbvdR407.executeGetQuotationLogic(quotationId,traceId);
 
 		if(nonNull(response)) {
 			LOGGER.info("RBVDT40401PETransaction - Response : {}",response);
 
 			this.setId(response.getId());
-			this.setQuotationdate(response.getQuotationDate());
+			this.setQuotationdate(Date.from(Instant.from(response.getQuotationDate().atStartOfDay(ZoneId.of("GMT")))));
 			this.setEmployees(response.getEmployees());
 			this.setProduct(response.getProduct());
 			this.setContactdetails(response.getContactDetails());
