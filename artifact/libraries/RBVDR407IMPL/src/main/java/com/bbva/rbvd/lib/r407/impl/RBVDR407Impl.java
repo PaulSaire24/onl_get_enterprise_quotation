@@ -3,13 +3,10 @@ package com.bbva.rbvd.lib.r407.impl;
 
 import com.bbva.pisd.dto.insurance.amazon.SignatureAWS;
 
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ProductDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PlanDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.CoverageDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.InstallmentPlansDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ValidityPeriodDTO;
+import com.bbva.pisd.dto.insurancedao.entities.QuotationEntity;
+import com.bbva.pisd.dto.insurancedao.entities.QuotationModEntity;
+import com.bbva.pisd.dto.insurancedao.join.QuotationJoinQuotationModDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.*;
 
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.AssistanceBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.CoverageBO;
@@ -38,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.List;
 import java.util.Collections;
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Collectors;
@@ -50,6 +46,9 @@ import java.util.stream.Collectors;
 public class RBVDR407Impl extends RBVDR407Abstract {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RBVDR407Impl.class);
+
+	private static final String CONTACT_EMAIL = "EMAIL";
+	private static final String CONTACT_PHONE = "MOBILE";
 
 	/**
 	 * The execute method...
@@ -87,36 +86,123 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 			return null;
 		}
 
+		QuotationJoinQuotationModDTO responseQuotation = this.pisdR601.executeFindQuotationInfoByQuotationId(quotationId);
+
+		if(responseQuotation == null){
+			this.addAdviceWithDescription("RBVD00000129","La cotización no existe");
+			return null;
+		}
+
 		response.setId(quotationId);
-		response.setQuotationDate(new Date());
+		response.setQuotationDate(ConvertUtils.convertStringDateToDate(responseQuotation.getQuotation().getQuoteDate()));
 		response.setEmployees(null);
-		response.setProduct(createProductDTO(responseRimac.getPayload()));
-		response.setContactDetails(null);
+		response.setProduct(createProductDTO(responseRimac.getPayload(),responseQuotation));
+		response.setContactDetails(createContactDetailsDTO(responseQuotation.getQuotationMod()));
 		response.setValidityPeriod(createValidityPeriodDTO(responseRimac.getPayload().getPlan()));
-		response.setBusinessAgent(null);
-		response.setParticipants(null);
-		response.setQuotationReference(null);
+		response.setBusinessAgent(createBusinessAgentDTO(responseQuotation.getQuotation().getUserAuditId()));
+		response.setParticipants(createParticipantsDTO(responseQuotation.getQuotation()));
+		response.setQuotationReference(responseQuotation.getQuotation().getRfqInternalId());
 		response.setStatus(null);
 
 		return response;
 	}
 
-	private ProductDTO createProductDTO(ResponsePayloadQuotationDetailBO payload){
+	private List<ParticipantDTO> createParticipantsDTO(QuotationEntity quotationEntity){
+		List<ParticipantDTO> participantDTOS = new ArrayList<>();
+
+		if(!ValidateUtils.stringIsNullOrEmpty(quotationEntity.getCustomerId())){
+			ParticipantDTO participantHolder = new ParticipantDTO();
+
+			participantHolder.setId(quotationEntity.getCustomerId());
+
+			if(!ValidateUtils.stringIsNullOrEmpty(quotationEntity.getPersonalDocType()) &&
+					!ValidateUtils.stringIsNullOrEmpty(quotationEntity.getParticipantPersonalId())){
+				participantHolder.setIdentityDocument(getIdentityDocumentFromDB(quotationEntity));
+			}
+
+			DescriptionDTO participantType = new DescriptionDTO();
+			participantType.setId("HOLDER");
+			participantHolder.setParticipantType(participantType);
+
+			participantDTOS.add(participantHolder);
+		}
+
+		return participantDTOS;
+	}
+
+	private IdentityDocumentDTO getIdentityDocumentFromDB(QuotationEntity quotationEntity) {
+		IdentityDocumentDTO identityDocument = new IdentityDocumentDTO();
+
+		DescriptionDTO documentType = new DescriptionDTO();
+		documentType.setId(this.applicationConfigurationService.getProperty(quotationEntity.getPersonalDocType()));
+		identityDocument.setDocumentNumber(quotationEntity.getParticipantPersonalId());
+		identityDocument.setDocumentType(documentType);
+
+		return identityDocument;
+	}
+
+	private DescriptionDTO createBusinessAgentDTO(String auditId){
+		if(ValidateUtils.stringIsNullOrEmpty(auditId)){
+			return null;
+		}else{
+			DescriptionDTO businessAgent = new DescriptionDTO();
+			businessAgent.setId(auditId);
+
+			return businessAgent;
+		}
+	}
+
+	private List<ContactDetailsDTO> createContactDetailsDTO(QuotationModEntity quotationModEntity){
+		List<ContactDetailsDTO> contacts = new ArrayList<>();
+
+		if(!ValidateUtils.stringIsNullOrEmpty(quotationModEntity.getContactEmailDesc())){
+			ContactDetailsDTO contactDetailsDTO = createContactDetailPerType(
+					CONTACT_EMAIL,quotationModEntity.getContactEmailDesc());
+			contacts.add(contactDetailsDTO);
+		}
+
+		if(!ValidateUtils.stringIsNullOrEmpty(quotationModEntity.getCustomerPhoneDesc())){
+			ContactDetailsDTO contactDetailsDTO = createContactDetailPerType(
+					CONTACT_PHONE,quotationModEntity.getCustomerPhoneDesc());
+			contacts.add(contactDetailsDTO);
+		}
+
+		return contacts;
+	}
+
+	private ContactDetailsDTO createContactDetailPerType(String contactDetailType,String contactData){
+		ContactDetailsDTO contactDetailsDTO = new ContactDetailsDTO();
+		ContactDTO contactDTO = new ContactDTO();
+
+		if(CONTACT_EMAIL.equalsIgnoreCase(contactDetailType)){
+			contactDTO.setContactDetailType(CONTACT_EMAIL);
+			contactDTO.setAddress(contactData);
+		}else if(CONTACT_PHONE.equalsIgnoreCase(contactDetailType)){
+			contactDTO.setContactDetailType(CONTACT_PHONE);
+			contactDTO.setNumber(contactData);
+		}
+
+		contactDetailsDTO.setContact(contactDTO);
+
+		return contactDetailsDTO;
+	}
+
+	private ProductDTO createProductDTO(ResponsePayloadQuotationDetailBO payload,QuotationJoinQuotationModDTO responseQuotation){
 		ProductDTO productDTO = new ProductDTO();
 
-		productDTO.setId("842");
+		productDTO.setId(responseQuotation.getInsuranceProductType());
 		productDTO.setName(payload.getProducto());
-		productDTO.setPlans(createPlansDTO(payload.getPlan()));
+		productDTO.setPlans(createPlansDTO(payload.getPlan(),responseQuotation.getQuotationMod().getInsuranceModalityType()));
 
 		return productDTO;
 	}
 
-	private List<PlanDTO> createPlansDTO(PlanBO planBO){
+	private List<PlanDTO> createPlansDTO(PlanBO planBO,String plan){
 		if(planBO != null){
 			List<PlanDTO> plans = new ArrayList<>();
 			PlanDTO planDTO = new PlanDTO();
 
-			planDTO.setId("02");
+			planDTO.setId(plan);
 			planDTO.setName(planBO.getDescripcionPlan());
 			planDTO.setIsSelected(Boolean.TRUE);
 			planDTO.setTotalInstallment(createTotalInstallmentDTO(planBO));

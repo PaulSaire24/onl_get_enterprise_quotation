@@ -1,6 +1,5 @@
 package com.bbva.rbvd.lib.r407.impl.utils;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
