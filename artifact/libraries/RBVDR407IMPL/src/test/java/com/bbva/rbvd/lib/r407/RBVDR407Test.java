@@ -216,6 +216,9 @@ public class RBVDR407Test {
 	@Test
 	public void executeGetQuotationLogic_WithNotPlanInRimacResponse() {
 		responseRimac.getPayload().setPlan(null);
+		quotationFromDB.getQuotation().setRfqInternalId(null);
+
+		Mockito.when(this.pisdr601.executeFindQuotationInfoByQuotationId(anyString())).thenReturn(quotationFromDB);
 
 		Mockito.when(this.externalApiConnector.exchange(Mockito.anyString(), Mockito.any(HttpMethod.class), Mockito.any(),
 				(Class<ResponseQuotationDetailBO>) Mockito.any(), Mockito.anyMap())).thenReturn(

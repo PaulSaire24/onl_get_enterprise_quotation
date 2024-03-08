@@ -78,9 +78,24 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 			return null;
 		}
 
+		QuotationJoinQuotationModDTO responseQuotation = this.pisdR601.executeFindQuotationInfoByQuotationId(quotationId);
+
+		if(responseQuotation == null){
+			this.addAdviceWithDescription("RBVD00000129","La cotización no existe");
+			return null;
+		}
+
+		String quotationReference = responseQuotation.getQuotation().getRfqInternalId();
+		String quotationType;
+
+		if(ValidateUtils.stringIsNullOrEmpty(quotationReference)){
+			quotationType = "R";
+		}else{
+			quotationType = "C";
+		}
+
 		String externalQuotationId = (String) responseProductMap.get("INSURANCE_COMPANY_QUOTA_ID");
 		String productShortDesc = (String) responseProductMap.get("PRODUCT_SHORT_DESC");
-		String quotationType = "R";
 
 		InputQuotationDetailBO inputRimac = new InputQuotationDetailBO();
 		inputRimac.setCotizacion(externalQuotationId);
@@ -97,13 +112,6 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 			return null;
 		}
 
-		QuotationJoinQuotationModDTO responseQuotation = this.pisdR601.executeFindQuotationInfoByQuotationId(quotationId);
-
-		if(responseQuotation == null){
-			this.addAdviceWithDescription("RBVD00000129","La cotización no existe");
-			return null;
-		}
-
 		response.setId(quotationId);
 		response.setQuotationDate(ConvertUtils.convertStringDateToLocalDate(responseQuotation.getQuotation().getQuoteDate()));
 		response.setEmployees(null);
@@ -112,7 +120,7 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		response.setValidityPeriod(createValidityPeriodDTO(responseRimac.getPayload().getPlan()));
 		response.setBusinessAgent(createBusinessAgentDTO(responseQuotation.getQuotation().getUserAuditId()));
 		response.setParticipants(createParticipantsDTO(responseQuotation.getQuotation()));
-		response.setQuotationReference(responseQuotation.getQuotation().getRfqInternalId());
+		response.setQuotationReference(quotationReference);
 		response.setStatus(null);
 
 		return response;
