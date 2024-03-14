@@ -97,8 +97,12 @@ public class RBVDR407Test {
 
 		Mockito.when(this.applicationConfigurationService.getProperty("rimac.quotationdetail.enterprise.uri"))
 				.thenReturn("/api-vida/V1/cotizaciones/externalQuotationId/producto/productName/detalle");
-		Mockito.when(this.applicationConfigurationService.getProperty("OBL_COVERAGE_ID")).thenReturn("MANDATORY");
+		Mockito.when(this.applicationConfigurationService.getProperty("COVERAGE_TYPE_OBL")).thenReturn("MAIN");
+		Mockito.when(this.applicationConfigurationService.getProperty("COVERAGE_TYPE_OPC")).thenReturn("ADDITIONAL");
+		Mockito.when(this.applicationConfigurationService.getProperty("COVERAGE_TYPE_INC")).thenReturn("INCLUDED");
 		Mockito.when(this.applicationConfigurationService.getProperty("OBL_COVERAGE_NAME")).thenReturn("OBLIGATORIA");
+		Mockito.when(this.applicationConfigurationService.getProperty("OPC_COVERAGE_NAME")).thenReturn("OPCIONAL");
+		Mockito.when(this.applicationConfigurationService.getProperty("INC_COVERAGE_NAME")).thenReturn("INCLUIDA");
 		Mockito.when(this.applicationConfigurationService.getProperty("R")).thenReturn("RUC");
 
 		Mockito.when(this.pisdr014.executeSignatureConstruction(any(), any(), anyString(), any(), anyString()))
@@ -166,6 +170,12 @@ public class RBVDR407Test {
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(2).getDescription());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(0).getCoverageType());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(1).getCoverageType().getId());
+		Assert.assertEquals("MAIN",response.getProduct().getPlans().get(0).getCoverages().get(0).getCoverageType().getId());
+		Assert.assertEquals("OBLIGATORIA",response.getProduct().getPlans().get(0).getCoverages().get(0).getCoverageType().getName());
+		Assert.assertEquals("MAIN",response.getProduct().getPlans().get(0).getCoverages().get(1).getCoverageType().getId());
+		Assert.assertEquals("OBLIGATORIA",response.getProduct().getPlans().get(0).getCoverages().get(1).getCoverageType().getName());
+		Assert.assertEquals("MAIN",response.getProduct().getPlans().get(0).getCoverages().get(2).getCoverageType().getId());
+		Assert.assertEquals("OBLIGATORIA",response.getProduct().getPlans().get(0).getCoverages().get(2).getCoverageType().getName());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getBenefits());
 		Assert.assertNull(response.getProduct().getPlans().get(0).getExclusions());
 

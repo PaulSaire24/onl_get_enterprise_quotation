@@ -273,8 +273,8 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 
 	private DescriptionDTO getCoverageTypeDTO(CoverageBO cobertura) {
 		DescriptionDTO coverageType = new DescriptionDTO();
-		String coverageId = this.applicationConfigurationService.getProperty(cobertura.getCondicion().concat("_COVERAGE_ID"));
-		String coverageName = this.applicationConfigurationService.getProperty(cobertura.getCondicion().concat("_COVERAGE_NAME"));
+		String coverageId = this.applicationConfigurationService.getProperty("COVERAGE_TYPE_" + cobertura.getCondicion());
+		String coverageName = this.applicationConfigurationService.getProperty(cobertura.getCondicion() + "_COVERAGE_NAME");
 		coverageType.setId(coverageId);
 		coverageType.setName(coverageName);
 		return coverageType;
