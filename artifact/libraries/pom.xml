@@ -12,5 +12,8 @@
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>LIBRARIES-onl_get_enterprise_quotation</name>
-	<modules/>
+	<modules>
+		<module>RBVDR407</module>
+		<module>RBVDR407IMPL</module>
+	</modules>
 </project>
