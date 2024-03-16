@@ -48,6 +48,8 @@ public class RBVDT40401PETransaction extends AbstractRBVDT40401PETransaction {
 			this.setParticipants(response.getParticipants());
 			this.setQuotationreference(response.getQuotationReference());
 			this.setStatus(response.getStatus());
+			this.setPaymentmethod(response.getPaymentMethod());
+			this.setBank(response.getBank());
 
 			this.setHttpResponseCode(HttpResponseCode.HTTP_CODE_200, Severity.OK);
 		} else {

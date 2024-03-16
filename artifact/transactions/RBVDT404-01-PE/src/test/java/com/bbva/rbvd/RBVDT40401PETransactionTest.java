@@ -73,8 +73,8 @@ public class RBVDT40401PETransactionTest {
 		// Set TransactionRequest
 		this.transaction.getContext().setTransactionRequest(transactionRequest);
 	}
-	private EnterpriseQuotationDTO createInput(){
-		EnterpriseQuotationDTO input = new EnterpriseQuotationDTO();
+	private EnterpriseQuotationDTO createResponseTrx(){
+		EnterpriseQuotationDTO response = new EnterpriseQuotationDTO();
 		ProductDTO product = new ProductDTO();
 		List<ContactDetailsDTO> contactDetails = new ArrayList<>();
 		List<ParticipantDTO> participantes = new ArrayList<>();
@@ -110,15 +110,17 @@ public class RBVDT40401PETransactionTest {
 		contacto1.setContact(contacto);
 		contactDetails.add(contacto1);
 
-		input.setProduct(product);
-		input.setParticipants(participantes);
-		input.setQuotationReference("2312313");
-		input.setEmployees(employees);
-		input.setBusinessAgent(busunessAgent);
-		input.setContactDetails(contactDetails);
-		input.setQuotationDate(LocalDate.now());
+		PaymentMethodDTO paymentMethod = new PaymentMethodDTO();
 
-		return input;
+		response.setProduct(product);
+		response.setParticipants(participantes);
+		response.setQuotationReference("2312313");
+		response.setEmployees(employees);
+		response.setBusinessAgent(busunessAgent);
+		response.setContactDetails(contactDetails);
+		response.setQuotationDate(LocalDate.now());
+
+		return response;
 	}
 
 	@Test
@@ -127,7 +129,7 @@ public class RBVDT40401PETransactionTest {
 		// Mockito.doReturn("ES").when(header).getHeaderParameter(RequestHeaderParamsName.COUNTRYCODE);
 
 
-		EnterpriseQuotationDTO response = createInput();
+		EnterpriseQuotationDTO response = createResponseTrx();
 		when(this.rbvdR407.executeGetQuotationLogic(anyString(),anyString())).thenReturn(response);
 		Assert.assertNotNull(this.transaction);
 		this.transaction.execute();
