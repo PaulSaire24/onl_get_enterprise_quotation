@@ -12,6 +12,7 @@ import com.bbva.pisd.dto.insurancedao.entities.QuotationModEntity;
 import com.bbva.pisd.dto.insurancedao.join.QuotationJoinQuotationModDTO;
 import com.bbva.pisd.lib.r014.PISDR014;
 import com.bbva.pisd.lib.r401.PISDR401;
+import com.bbva.pisd.lib.r402.PISDR402;
 import com.bbva.pisd.lib.r601.PISDR601;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.QuotationDetailDTO;
@@ -31,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 
+import javax.validation.constraints.AssertTrue;
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -48,16 +50,15 @@ public class RBVDR407Test {
 
 	private final RBVDR407Impl rbvdR407Impl = new RBVDR407Impl();
 
-
-	private ApplicationConfigurationService applicationConfigurationService;
 	private APIConnector externalApiConnector;
 	private PISDR401 pisdr401;
-	private PISDR014 pisdr014;
 	private PISDR601 pisdr601;
+	private PISDR402 pisdr402;
 	private final String quotationId = "081400000381";
 	private ResponseQuotationDetailBO responseRimac;
 	private Map<String, Object> mapProductInfo = new HashMap<>();
 	private QuotationJoinQuotationModDTO quotationFromDB = new QuotationJoinQuotationModDTO();
+
 
 
 	@Before
@@ -66,14 +67,16 @@ public class RBVDR407Test {
 		ThreadContext.set(context);
 
 		pisdr401 = mock(PISDR401.class);
-		pisdr014 = mock(PISDR014.class);
+		PISDR014 pisdr014 = mock(PISDR014.class);
 		pisdr601 = mock(PISDR601.class);
-		applicationConfigurationService = mock(ApplicationConfigurationService.class);
+		pisdr402 = mock(PISDR402.class);
+		ApplicationConfigurationService applicationConfigurationService = mock(ApplicationConfigurationService.class);
 		externalApiConnector = mock(APIConnector.class);
 
 		rbvdR407Impl.setPisdR401(pisdr401);
 		rbvdR407Impl.setPisdR014(pisdr014);
 		rbvdR407Impl.setPisdR601(pisdr601);
+		rbvdR407Impl.setPisdR402(pisdr402);
 		rbvdR407Impl.setApplicationConfigurationService(applicationConfigurationService);
 		rbvdR407Impl.setExternalApiConnector(externalApiConnector);
 
@@ -84,7 +87,7 @@ public class RBVDR407Test {
 		mapProductInfo.put("INSURANCE_COMPANY_QUOTA_ID", "1cdd6ec3-67eb-443a-b4e6-ff10257cf205");
 		mapProductInfo.put("PRODUCT_SHORT_DESC", "VIDALEY");
 		mapProductInfo.put("INSURANCE_BUSINESS_NAME", "VIDA");
-		mapProductInfo.put("INSURANCE_PRODUCT_ID", new BigDecimal("13"));
+		mapProductInfo.put("INSURANCE_PRODUCT_ID", 13);
 		Mockito.when(this.pisdr401.executeGetProductById(
 						"PISD.GET_RIMAC_QUOT_AND_PRODUCT_INFO_BY_POLICY_QUOTA_INTERNAL_ID",
 						Collections.singletonMap("POLICY_QUOTA_INTERNAL_ID", quotationId)))
@@ -95,21 +98,23 @@ public class RBVDR407Test {
 				new ResponseEntity<>(responseRimac, HttpStatus.OK)
 		);
 
-		Mockito.when(this.applicationConfigurationService.getProperty("rimac.quotationdetail.enterprise.uri"))
+		Mockito.when(applicationConfigurationService.getProperty("rimac.quotationdetail.enterprise.uri"))
 				.thenReturn("/api-vida/V1/cotizaciones/externalQuotationId/producto/productName/detalle");
-		Mockito.when(this.applicationConfigurationService.getProperty("COVERAGE_TYPE_OBL")).thenReturn("MAIN");
-		Mockito.when(this.applicationConfigurationService.getProperty("COVERAGE_TYPE_OPC")).thenReturn("ADDITIONAL");
-		Mockito.when(this.applicationConfigurationService.getProperty("COVERAGE_TYPE_INC")).thenReturn("INCLUDED");
-		Mockito.when(this.applicationConfigurationService.getProperty("OBL_COVERAGE_NAME")).thenReturn("OBLIGATORIA");
-		Mockito.when(this.applicationConfigurationService.getProperty("OPC_COVERAGE_NAME")).thenReturn("OPCIONAL");
-		Mockito.when(this.applicationConfigurationService.getProperty("INC_COVERAGE_NAME")).thenReturn("INCLUIDA");
-		Mockito.when(this.applicationConfigurationService.getProperty("R")).thenReturn("RUC");
+		Mockito.when(applicationConfigurationService.getProperty("COVERAGE_TYPE_OBL")).thenReturn("MAIN");
+		Mockito.when(applicationConfigurationService.getProperty("COVERAGE_TYPE_OPC")).thenReturn("ADDITIONAL");
+		Mockito.when(applicationConfigurationService.getProperty("COVERAGE_TYPE_INC")).thenReturn("INCLUDED");
+		Mockito.when(applicationConfigurationService.getProperty("OBL_COVERAGE_NAME")).thenReturn("OBLIGATORIA");
+		Mockito.when(applicationConfigurationService.getProperty("OPC_COVERAGE_NAME")).thenReturn("OPCIONAL");
+		Mockito.when(applicationConfigurationService.getProperty("INC_COVERAGE_NAME")).thenReturn("INCLUIDA");
+		Mockito.when(applicationConfigurationService.getProperty("R")).thenReturn("RUC");
 
-		Mockito.when(this.pisdr014.executeSignatureConstruction(any(), any(), anyString(), any(), anyString()))
+		Mockito.when(pisdr014.executeSignatureConstruction(any(), any(), anyString(), any(), anyString()))
 				.thenReturn(new SignatureAWS("authorization", "xAmzDate", "xApiKey", "traceId"));
 
 		quotationFromDB = dataQuotationFromDB();
-		Mockito.when(this.pisdr601.executeFindQuotationInfoByQuotationId(anyString())).thenReturn(quotationFromDB);
+		Mockito.when(pisdr601.executeFindQuotationInfoByQuotationId(anyString())).thenReturn(quotationFromDB);
+
+		Mockito.when(pisdr402.executeGetASingleRow(anyString(),Mockito.anyMap())).thenReturn(null);
 
 	}
 
@@ -149,6 +154,8 @@ public class RBVDR407Test {
 
 		Assert.assertNotNull(response.getQuotationDate());
 
+		Assert.assertNull(response.getEmployees());
+
 		Assert.assertNotNull(response.getProduct());
 		Assert.assertNotNull(response.getProduct().getId());
 		Assert.assertNotNull(response.getProduct().getName());
@@ -186,6 +193,33 @@ public class RBVDR407Test {
 				response.getValidityPeriod().getStartDate());
 		Assert.assertEquals(ConvertUtils.convertStringDateToDate(responseRimac.getPayload().getPlan().getFechaFin()),
 				response.getValidityPeriod().getEndDate());
+
+	}
+
+	@Test
+	public void executeGetQuotationLogic_EmployeesDataNotNull(){
+		Map<String,Object> employessMap = new HashMap<>();
+		employessMap.put("INCOMES_PAYROLL_AMOUNT",8521.56);
+		employessMap.put("CURRENCY_ID","PEN");
+		employessMap.put("PAYROLL_EMPLOYEE_NUMBER",3);
+		employessMap.put("YEARS_OLD_18_65_EMPLOYEES_IND_TYPE","1");
+
+		Mockito.when(pisdr402.executeGetASingleRow(anyString(),Mockito.anyMap())).thenReturn(employessMap);
+
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+
+		Assert.assertNotNull(response);
+		Assert.assertNotNull(response.getEmployees());
+		Assert.assertNotNull(response.getEmployees().getAreMajorityAge());
+		Assert.assertNotNull(response.getEmployees().getEmployeesNumber());
+		Assert.assertNotNull(response.getEmployees().getMonthlyPayrollAmount());
+		Assert.assertNotNull(response.getEmployees().getMonthlyPayrollAmount().getAmount());
+		Assert.assertNotNull(response.getEmployees().getMonthlyPayrollAmount().getCurrency());
+
+		Assert.assertEquals(true,response.getEmployees().getAreMajorityAge());
+		Assert.assertEquals(employessMap.get("PAYROLL_EMPLOYEE_NUMBER"),response.getEmployees().getEmployeesNumber().intValue());
+		Assert.assertEquals(employessMap.get("INCOMES_PAYROLL_AMOUNT"),response.getEmployees().getMonthlyPayrollAmount().getAmount());
+		Assert.assertEquals(employessMap.get("CURRENCY_ID"),response.getEmployees().getMonthlyPayrollAmount().getCurrency());
 
 	}
 

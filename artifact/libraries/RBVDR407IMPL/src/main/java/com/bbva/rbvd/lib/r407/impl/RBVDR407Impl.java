@@ -7,18 +7,7 @@ import com.bbva.pisd.dto.insurancedao.entities.QuotationEntity;
 import com.bbva.pisd.dto.insurancedao.entities.QuotationModEntity;
 import com.bbva.pisd.dto.insurancedao.join.QuotationJoinQuotationModDTO;
 
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ParticipantDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.IdentityDocumentDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDetailsDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ProductDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PlanDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.CoverageDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.InstallmentPlansDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ValidityPeriodDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.*;
 
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.AssistanceBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.CoverageBO;
@@ -42,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClientException;
 
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.List;
@@ -85,6 +75,8 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 			return null;
 		}
 
+		Map<String, Object> employeeInfo = getEmployeesInfoFromDB(quotationId, responseProductMap, responseQuotation);
+
 		String quotationReference = responseQuotation.getQuotation().getRfqInternalId();
 		String quotationType;
 
@@ -114,7 +106,7 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 
 		response.setId(quotationId);
 		response.setQuotationDate(ConvertUtils.convertStringDateToLocalDate(responseQuotation.getQuotation().getQuoteDate()));
-		response.setEmployees(null);
+		response.setEmployees(createEmployeesDTO(employeeInfo));
 		response.setProduct(createProductDTO(responseRimac.getPayload(),responseQuotation));
 		response.setContactDetails(createContactDetailsDTO(responseQuotation.getQuotationMod()));
 		response.setValidityPeriod(createValidityPeriodDTO(responseRimac.getPayload().getPlan()));
@@ -124,6 +116,39 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		response.setStatus(null);
 
 		return response;
+	}
+
+
+	private Map<String, Object> getEmployeesInfoFromDB(String quotationId, Map<String, Object> responseProductMap,
+													   QuotationJoinQuotationModDTO responseQuotation) {
+
+		BigDecimal insuranceProductId = new BigDecimal((Integer) responseProductMap.get("INSURANCE_PRODUCT_ID"));
+		Map<String,Object> arguments = new HashMap<>();
+		arguments.put("POLICY_QUOTA_INTERNAL_ID", quotationId);
+		arguments.put("INSURANCE_PRODUCT_ID",insuranceProductId);
+		arguments.put("INSURANCE_MODALITY_TYPE", responseQuotation.getQuotationMod().getInsuranceModalityType());
+		return this.pisdR402.executeGetASingleRow("PISD.FIND_ENTERPRISE_EMPLOYEE_FROM_QUOTATION",arguments);
+	}
+
+	private EmployeesDTO createEmployeesDTO(Map<String,Object> employeeInfo){
+		if(!ValidateUtils.mapIsNullOrEmpty(employeeInfo) && ValidateUtils.mapNotContainsNullValue(employeeInfo)){
+			EmployeesDTO employees = new EmployeesDTO();
+
+			String areMajority = (String) employeeInfo.get("YEARS_OLD_18_65_EMPLOYEES_IND_TYPE");
+			employees.setAreMajorityAge(areMajority.equals("1"));
+
+			BigDecimal employeesNumber = ConvertUtils.getBigDecimalValue(employeeInfo.get("PAYROLL_EMPLOYEE_NUMBER"));
+			employees.setEmployeesNumber(employeesNumber.longValue());
+
+			AmountDTO payrollAmount = new AmountDTO();
+			BigDecimal amount = ConvertUtils.getBigDecimalValue(employeeInfo.get("INCOMES_PAYROLL_AMOUNT"));
+			payrollAmount.setAmount(amount.doubleValue());
+			payrollAmount.setCurrency((String) employeeInfo.get("CURRENCY_ID"));
+			employees.setMonthlyPayrollAmount(payrollAmount);
+
+			return employees;
+		}
+		return null;
 	}
 
 	private List<ParticipantDTO> createParticipantsDTO(QuotationEntity quotationEntity){

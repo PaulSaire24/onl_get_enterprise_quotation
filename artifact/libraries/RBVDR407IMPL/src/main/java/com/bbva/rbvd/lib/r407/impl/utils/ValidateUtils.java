@@ -14,4 +14,13 @@ public class ValidateUtils {
         return mapa == null || mapa.isEmpty();
     }
 
+    public static boolean mapNotContainsNullValue(Map<String,Object> mapa){
+        for(Map.Entry<String,Object> entry : mapa.entrySet()){
+            if(entry.getValue() == null){
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
