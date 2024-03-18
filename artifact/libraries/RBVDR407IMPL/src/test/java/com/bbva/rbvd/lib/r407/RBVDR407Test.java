@@ -15,7 +15,6 @@ import com.bbva.pisd.lib.r401.PISDR401;
 import com.bbva.pisd.lib.r402.PISDR402;
 import com.bbva.pisd.lib.r601.PISDR601;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.QuotationDetailDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponseQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.mock.MockData;
 import com.bbva.rbvd.lib.r407.impl.RBVDR407Impl;
@@ -31,10 +30,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-
-import javax.validation.constraints.AssertTrue;
 import java.io.IOException;
-import java.math.BigDecimal;
 
 import java.util.*;
 
@@ -107,6 +103,7 @@ public class RBVDR407Test {
 		Mockito.when(applicationConfigurationService.getProperty("OPC_COVERAGE_NAME")).thenReturn("OPCIONAL");
 		Mockito.when(applicationConfigurationService.getProperty("INC_COVERAGE_NAME")).thenReturn("INCLUIDA");
 		Mockito.when(applicationConfigurationService.getProperty("R")).thenReturn("RUC");
+		Mockito.when(applicationConfigurationService.getProperty("Mensual")).thenReturn("MONTHLY");
 
 		Mockito.when(pisdr014.executeSignatureConstruction(any(), any(), anyString(), any(), anyString()))
 				.thenReturn(new SignatureAWS("authorization", "xAmzDate", "xApiKey", "traceId"));
@@ -220,6 +217,39 @@ public class RBVDR407Test {
 		Assert.assertEquals(employessMap.get("PAYROLL_EMPLOYEE_NUMBER"),response.getEmployees().getEmployeesNumber().intValue());
 		Assert.assertEquals(employessMap.get("INCOMES_PAYROLL_AMOUNT"),response.getEmployees().getMonthlyPayrollAmount().getAmount());
 		Assert.assertEquals(employessMap.get("CURRENCY_ID"),response.getEmployees().getMonthlyPayrollAmount().getCurrency());
+	}
+
+	@Test
+	public void executeGetQuotationLogic_PaymentMethodDataNotNull(){
+		Map<String,Object> paymentMethodMap = new HashMap<>();
+		paymentMethodMap.put("AUTOMATIC_DEBIT_INDICATOR_TYPE","S");
+		paymentMethodMap.put("DOMICILE_CONTRACT_ID","5123128224957563");
+		paymentMethodMap.put("PAYMENT_FREQUENCY_NAME","MENSUAL");
+		paymentMethodMap.put("PAYMENT_METHOD_TYPE","T");
+		paymentMethodMap.put("INSURANCE_CONTRACT_ENTITY_ID","0011");
+		paymentMethodMap.put("CONTRACT_MANAGER_BRANCH_ID","0826");
+		paymentMethodMap.put("INCOMES_PAYROLL_AMOUNT",8521.56);
+		paymentMethodMap.put("CURRENCY_ID","PEN");
+		paymentMethodMap.put("PAYROLL_EMPLOYEE_NUMBER",3);
+		paymentMethodMap.put("YEARS_OLD_18_65_EMPLOYEES_IND_TYPE","1");
+
+		Mockito.when(pisdr402.executeGetASingleRow(anyString(),Mockito.anyMap()))
+				.thenReturn(paymentMethodMap);
+
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+
+		Assert.assertNotNull(response);
+		Assert.assertNotNull(response.getPaymentMethod());
+		Assert.assertNotNull(response.getPaymentMethod().getPaymentType());
+		Assert.assertNotNull(response.getPaymentMethod().getInstallmentFrequency());
+		Assert.assertEquals("MONTHLY",response.getPaymentMethod().getInstallmentFrequency());
+		Assert.assertNotNull(response.getPaymentMethod().getRelatedContracts());
+		Assert.assertEquals(1,response.getPaymentMethod().getRelatedContracts().size());
+
+		Assert.assertNotNull(response.getBank());
+		Assert.assertNotNull(response.getBank().getId());
+		Assert.assertNotNull(response.getBank().getBranch());
+		Assert.assertNotNull(response.getBank().getBranch().getId());
 
 	}
 
@@ -345,7 +375,5 @@ public class RBVDR407Test {
 		Assert.assertEquals(1,context.getAdviceList().size());
 		Assert.assertEquals("RBVD00000129",context.getAdviceList().get(0).getCode());
 	}
-
-
 	
 }

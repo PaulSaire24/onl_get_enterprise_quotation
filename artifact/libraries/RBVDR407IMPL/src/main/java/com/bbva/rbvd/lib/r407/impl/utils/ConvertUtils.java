@@ -8,6 +8,8 @@ import java.util.Date;
 
 public class ConvertUtils {
 
+    private ConvertUtils(){}
+
     public static String getRequestJsonFormat(final Object requestBody) {
         return JsonUtils.getInstance().serialization(requestBody);
     }
@@ -20,6 +22,14 @@ public class ConvertUtils {
     public static LocalDate convertStringDateToLocalDate(String dateStr){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return LocalDate.parse(dateStr,formatter);
+    }
+
+    public static String convertStringToUpperAndLowerCase(String value){
+        StringBuilder str = new StringBuilder();
+        str.append(value.toUpperCase().charAt(0));
+        str.append(value.toLowerCase().substring(1));
+
+        return str.toString();
     }
 
     public static BigDecimal getBigDecimalValue(Object value){

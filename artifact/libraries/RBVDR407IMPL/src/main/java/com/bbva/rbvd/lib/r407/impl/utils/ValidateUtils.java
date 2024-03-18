@@ -1,5 +1,6 @@
 package com.bbva.rbvd.lib.r407.impl.utils;
 
+import java.util.Arrays;
 import java.util.Map;
 
 public class ValidateUtils {
@@ -12,6 +13,10 @@ public class ValidateUtils {
 
     public static boolean mapIsNullOrEmpty(Map<?,?> mapa){
         return mapa == null || mapa.isEmpty();
+    }
+
+    public static boolean allValuesNotNullOrEmpty(String... values){
+        return Arrays.stream(values).noneMatch(ValidateUtils::stringIsNullOrEmpty);
     }
 
     public static boolean mapNotContainsNullValue(Map<String,Object> mapa){

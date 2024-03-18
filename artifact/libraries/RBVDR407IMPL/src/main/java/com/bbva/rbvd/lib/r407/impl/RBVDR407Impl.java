@@ -7,7 +7,22 @@ import com.bbva.pisd.dto.insurancedao.entities.QuotationEntity;
 import com.bbva.pisd.dto.insurancedao.entities.QuotationModEntity;
 import com.bbva.pisd.dto.insurancedao.join.QuotationJoinQuotationModDTO;
 
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.*;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PaymentMethodDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.IdentityDocumentDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDetailsDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ProductDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PlanDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EmployeesDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ParticipantDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.CoverageDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.InstallmentPlansDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ValidityPeriodDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.BankDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.RelatedContractsDTO;
 
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.AssistanceBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.CoverageBO;
@@ -18,6 +33,8 @@ import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.InstallmentFinancingB
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.InputQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponsePayloadQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponseQuotationDetailBO;
+import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
+import com.bbva.rbvd.dto.enterpriseinsurance.utils.RBVDErrors;
 import com.bbva.rbvd.lib.r407.impl.utils.ConvertUtils;
 import com.bbva.rbvd.lib.r407.impl.utils.ValidateUtils;
 import org.slf4j.Logger;
@@ -48,8 +65,6 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RBVDR407Impl.class);
 
-	private static final String CONTACT_EMAIL = "EMAIL";
-	private static final String CONTACT_PHONE = "MOBILE";
 
 	/**
 	 * The execute method...
@@ -62,51 +77,43 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		EnterpriseQuotationDTO response = new EnterpriseQuotationDTO();
 
 		Map<String, Object> responseProductMap = getProductInformation(quotationId);
+		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | responseProductMap: {}",responseProductMap);
 
 		if(ValidateUtils.mapIsNullOrEmpty(responseProductMap)){
-			this.addAdviceWithDescription("RBVD00000129","La cotización no existe");
+			this.addAdviceWithDescription(RBVDErrors.ERROR_PRODUCT_BY_SIMULATION.getAdviceCode(),
+					RBVDErrors.ERROR_PRODUCT_BY_SIMULATION.getMessage());
 			return null;
 		}
 
 		QuotationJoinQuotationModDTO responseQuotation = this.pisdR601.executeFindQuotationInfoByQuotationId(quotationId);
+		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | responseQuotation: {}",responseQuotation);
 
 		if(responseQuotation == null){
-			this.addAdviceWithDescription("RBVD00000129","La cotización no existe");
+			this.addAdviceWithDescription(RBVDErrors.ERROR_PRODUCT_BY_SIMULATION.getAdviceCode(),
+					RBVDErrors.ERROR_PRODUCT_BY_SIMULATION.getMessage());
 			return null;
 		}
 
-		Map<String, Object> employeeInfo = getEmployeesInfoFromDB(quotationId, responseProductMap, responseQuotation);
+		Map<String, Object> employeeInfoMap = getEmployeesInfoFromDB(quotationId, responseProductMap, responseQuotation);
+		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | employeeInfo: {}",employeeInfoMap);
+
+		Map<String,Object> paymentDetailsMap = getPaymentDetailsByQuotationFromDB(quotationId);
+		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | paymentDetailsMap: {}",paymentDetailsMap);
 
 		String quotationReference = responseQuotation.getQuotation().getRfqInternalId();
-		String quotationType;
 
-		if(ValidateUtils.stringIsNullOrEmpty(quotationReference)){
-			quotationType = "R";
-		}else{
-			quotationType = "C";
-		}
-
-		String externalQuotationId = (String) responseProductMap.get("INSURANCE_COMPANY_QUOTA_ID");
-		String productShortDesc = (String) responseProductMap.get("PRODUCT_SHORT_DESC");
-
-		InputQuotationDetailBO inputRimac = new InputQuotationDetailBO();
-		inputRimac.setCotizacion(externalQuotationId);
-		inputRimac.setProducto(productShortDesc);
-		inputRimac.setTipoCotizacion(quotationType);
-		inputRimac.setTraceId(traceId);
-
-		ResponseQuotationDetailBO responseRimac = executeQuotationDetailRimac(inputRimac);
+		ResponseQuotationDetailBO responseRimac = callRimacService(responseProductMap,quotationReference,traceId);
 		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | responseRimac: {}",responseRimac);
 
 		if(responseRimac == null){
-			this.addAdviceWithDescription("RBVD00000174",
-					"Error al llamar al servicio detalle cotizacion de Rimac");
+			this.addAdviceWithDescription(RBVDErrors.ERROR_CALL_QUOTATION_DETAIL_API.getAdviceCode(),
+					RBVDErrors.ERROR_CALL_QUOTATION_DETAIL_API.getMessage());
 			return null;
 		}
 
 		response.setId(quotationId);
 		response.setQuotationDate(ConvertUtils.convertStringDateToLocalDate(responseQuotation.getQuotation().getQuoteDate()));
-		response.setEmployees(createEmployeesDTO(employeeInfo));
+		response.setEmployees(createEmployeesDTO(employeeInfoMap));
 		response.setProduct(createProductDTO(responseRimac.getPayload(),responseQuotation));
 		response.setContactDetails(createContactDetailsDTO(responseQuotation.getQuotationMod()));
 		response.setValidityPeriod(createValidityPeriodDTO(responseRimac.getPayload().getPlan()));
@@ -115,35 +122,138 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		response.setQuotationReference(quotationReference);
 		response.setStatus(null);
 
+		if(ValidateUtils.mapIsNullOrEmpty(paymentDetailsMap)){
+			response.setPaymentMethod(null);
+			response.setBank(null);
+		}else{
+			response.setPaymentMethod(createPaymentMethodDTO(paymentDetailsMap));
+			response.setBank(createBankDTO(paymentDetailsMap));
+		}
+
 		return response;
+	}
+
+	private PaymentMethodDTO createPaymentMethodDTO(Map<String,Object> paymentDetailsMap){
+		String paymentType = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_AUTOMATIC_DEBIT_INDICATOR_TYPE);
+		String frequency = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_PAYMENT_FREQUENCY_NAME);
+
+		if(ValidateUtils.allValuesNotNullOrEmpty(paymentType,frequency)){
+			PaymentMethodDTO paymentMethodDTO = new PaymentMethodDTO();
+
+			paymentMethodDTO.setPaymentType(ConstantsUtil.StringConstants.S.equalsIgnoreCase(paymentType)
+					? ConstantsUtil.PaymentMethod.METHOD_TYPE_DIRECT_DEBIT
+					: ConstantsUtil.PaymentMethod.METHOD_TYPE_CREDIT_CARD);
+			paymentMethodDTO.setInstallmentFrequency(this.applicationConfigurationService.getProperty(
+					ConvertUtils.convertStringToUpperAndLowerCase(frequency)));
+			paymentMethodDTO.setRelatedContracts(constructRelatedContracts(paymentDetailsMap));
+
+			return paymentMethodDTO;
+		}
+		return null;
+	}
+
+	private List<RelatedContractsDTO> constructRelatedContracts(Map<String,Object> paymentDetailsMap){
+		String contractId = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_DOMICILE_CONTRACT_ID);
+		String paymentMethodType = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_PAYMENT_METHOD_TYPE);
+
+		if(ValidateUtils.allValuesNotNullOrEmpty(contractId,paymentMethodType)){
+			List<RelatedContractsDTO> relatedContractList = new ArrayList<>();
+			RelatedContractsDTO relatedContractsDTO = new RelatedContractsDTO();
+
+			relatedContractsDTO.setContractId(contractId);
+			relatedContractsDTO.setNumber(contractId);
+			DescriptionDTO productDTO = new DescriptionDTO();
+			productDTO.setId("T".equalsIgnoreCase(paymentMethodType)
+					? ConstantsUtil.PaymentMethod.PRODUCT_ID_CARD : ConstantsUtil.PaymentMethod.PRODUCT_ID_ACCOUNT);
+			relatedContractsDTO.setProduct(productDTO);
+
+			relatedContractList.add(relatedContractsDTO);
+
+			return relatedContractList;
+		}
+
+		return null;
+	}
+
+
+	private BankDTO createBankDTO(Map<String,Object> paymentDetailsMap){
+		String entity = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_INSURANCE_CONTRACT_ENTITY_ID);
+		String branch = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_CONTRACT_MANAGER_BRANCH_ID);
+
+		if(ValidateUtils.allValuesNotNullOrEmpty(entity,branch)){
+			BankDTO bankDTO = new BankDTO();
+			bankDTO.setId(entity);
+
+			DescriptionDTO branchDTO = new DescriptionDTO();
+			branchDTO.setId(branch);
+			bankDTO.setBranch(branchDTO);
+
+			return bankDTO;
+		}
+
+		return null;
+	}
+
+	private ResponseQuotationDetailBO callRimacService(Map<String,Object> responseProductMap,String quotationReference,
+													   String traceId){
+			String externalQuotationId = (String) responseProductMap.get(ConstantsUtil.QuotationMap.INSURANCE_COMPANY_QUOTA_ID);
+		String productShortDesc = (String) responseProductMap.get(ConstantsUtil.InsuranceProduct.FIELD_PRODUCT_SHORT_DESC);
+
+		String quotationType;
+
+		if(ValidateUtils.stringIsNullOrEmpty(quotationReference)){
+			quotationType = ConstantsUtil.StringConstants.R;
+		}else{
+			quotationType = ConstantsUtil.StringConstants.C;
+		}
+
+		InputQuotationDetailBO inputRimac = new InputQuotationDetailBO();
+		inputRimac.setCotizacion(externalQuotationId);
+		inputRimac.setProducto(productShortDesc);
+		inputRimac.setTipoCotizacion(quotationType);
+		inputRimac.setTraceId(traceId);
+
+		return executeQuotationDetailRimac(inputRimac);
+	}
+
+	private Map<String,Object> getPaymentDetailsByQuotationFromDB(String quotationId){
+		Map<String,Object> arguments = new HashMap<>();
+		arguments.put(ConstantsUtil.QuotationMap.POLICY_QUOTA_INTERNAL_ID, quotationId);
+		return this.pisdR402.executeGetASingleRow(
+				ConstantsUtil.QueriesName.QUERY_FIND_PAYMENTMETHOD_FROM_QUOTATION,arguments);
 	}
 
 
 	private Map<String, Object> getEmployeesInfoFromDB(String quotationId, Map<String, Object> responseProductMap,
 													   QuotationJoinQuotationModDTO responseQuotation) {
 
-		BigDecimal insuranceProductId = new BigDecimal((Integer) responseProductMap.get("INSURANCE_PRODUCT_ID"));
+		BigDecimal insuranceProductId = ConvertUtils.getBigDecimalValue(responseProductMap.get(
+				ConstantsUtil.InsurancePrdModality.FIELD_INSURANCE_PRODUCT_ID));
 		Map<String,Object> arguments = new HashMap<>();
-		arguments.put("POLICY_QUOTA_INTERNAL_ID", quotationId);
-		arguments.put("INSURANCE_PRODUCT_ID",insuranceProductId);
-		arguments.put("INSURANCE_MODALITY_TYPE", responseQuotation.getQuotationMod().getInsuranceModalityType());
-		return this.pisdR402.executeGetASingleRow("PISD.FIND_ENTERPRISE_EMPLOYEE_FROM_QUOTATION",arguments);
+		arguments.put(ConstantsUtil.QuotationMap.POLICY_QUOTA_INTERNAL_ID, quotationId);
+		arguments.put(ConstantsUtil.InsurancePrdModality.FIELD_INSURANCE_PRODUCT_ID,insuranceProductId);
+		arguments.put(ConstantsUtil.InsurancePrdModality.FIELD_INSURANCE_MODALITY_TYPE,
+				responseQuotation.getQuotationMod().getInsuranceModalityType());
+		return this.pisdR402.executeGetASingleRow(
+				ConstantsUtil.QueriesName.QUERY_FIND_ENTERPRISE_EMPLOYEE_FROM_QUOTATION,arguments);
 	}
 
 	private EmployeesDTO createEmployeesDTO(Map<String,Object> employeeInfo){
 		if(!ValidateUtils.mapIsNullOrEmpty(employeeInfo) && ValidateUtils.mapNotContainsNullValue(employeeInfo)){
 			EmployeesDTO employees = new EmployeesDTO();
 
-			String areMajority = (String) employeeInfo.get("YEARS_OLD_18_65_EMPLOYEES_IND_TYPE");
+			String areMajority = (String) employeeInfo.get(ConstantsUtil.InsuranceQuoteCoLife.FIELD_AGE_EMPLOYEES_IND_TYPE);
 			employees.setAreMajorityAge(areMajority.equals("1"));
 
-			BigDecimal employeesNumber = ConvertUtils.getBigDecimalValue(employeeInfo.get("PAYROLL_EMPLOYEE_NUMBER"));
+			BigDecimal employeesNumber = ConvertUtils.getBigDecimalValue(employeeInfo.get(
+					ConstantsUtil.InsuranceQuoteCoLife.FIELD_PAYROLL_EMPLOYEE_NUMBER));
 			employees.setEmployeesNumber(employeesNumber.longValue());
 
 			AmountDTO payrollAmount = new AmountDTO();
-			BigDecimal amount = ConvertUtils.getBigDecimalValue(employeeInfo.get("INCOMES_PAYROLL_AMOUNT"));
+			BigDecimal amount = ConvertUtils.getBigDecimalValue(employeeInfo.get(
+					ConstantsUtil.InsuranceQuoteCoLife.FIELD_INCOMES_PAYROLL_AMOUNT));
 			payrollAmount.setAmount(amount.doubleValue());
-			payrollAmount.setCurrency((String) employeeInfo.get("CURRENCY_ID"));
+			payrollAmount.setCurrency((String) employeeInfo.get(ConstantsUtil.InsuranceQuoteCoLife.FIELD_CURRENCY_ID));
 			employees.setMonthlyPayrollAmount(payrollAmount);
 
 			return employees;
@@ -159,13 +269,13 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 
 			participantHolder.setId(quotationEntity.getCustomerId());
 
-			if(!ValidateUtils.stringIsNullOrEmpty(quotationEntity.getPersonalDocType()) &&
-					!ValidateUtils.stringIsNullOrEmpty(quotationEntity.getParticipantPersonalId())){
+			if(ValidateUtils.allValuesNotNullOrEmpty(
+					quotationEntity.getPersonalDocType(),quotationEntity.getParticipantPersonalId())){
 				participantHolder.setIdentityDocument(getIdentityDocumentFromDB(quotationEntity));
 			}
 
 			DescriptionDTO participantType = new DescriptionDTO();
-			participantType.setId("HOLDER");
+			participantType.setId(ConstantsUtil.StringConstants.PARTICIPANT_TYPE_HOLDER);
 			participantHolder.setParticipantType(participantType);
 
 			participantDTOS.add(participantHolder);
@@ -201,13 +311,13 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 
 		if(!ValidateUtils.stringIsNullOrEmpty(quotationModEntity.getContactEmailDesc())){
 			ContactDetailsDTO contactDetailsDTO = createContactDetailPerType(
-					CONTACT_EMAIL,quotationModEntity.getContactEmailDesc());
+					ConstantsUtil.ContactDetailtype.EMAIL,quotationModEntity.getContactEmailDesc());
 			contacts.add(contactDetailsDTO);
 		}
 
 		if(!ValidateUtils.stringIsNullOrEmpty(quotationModEntity.getCustomerPhoneDesc())){
 			ContactDetailsDTO contactDetailsDTO = createContactDetailPerType(
-					CONTACT_PHONE,quotationModEntity.getCustomerPhoneDesc());
+					ConstantsUtil.ContactDetailtype.MOBILE,quotationModEntity.getCustomerPhoneDesc());
 			contacts.add(contactDetailsDTO);
 		}
 
@@ -218,11 +328,11 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		ContactDetailsDTO contactDetailsDTO = new ContactDetailsDTO();
 		ContactDTO contactDTO = new ContactDTO();
 
-		if(CONTACT_EMAIL.equalsIgnoreCase(contactDetailType)){
-			contactDTO.setContactDetailType(CONTACT_EMAIL);
+		if(ConstantsUtil.ContactDetailtype.EMAIL.equalsIgnoreCase(contactDetailType)){
+			contactDTO.setContactDetailType(ConstantsUtil.ContactDetailtype.EMAIL);
 			contactDTO.setAddress(contactData);
-		}else if(CONTACT_PHONE.equalsIgnoreCase(contactDetailType)){
-			contactDTO.setContactDetailType(CONTACT_PHONE);
+		}else if(ConstantsUtil.ContactDetailtype.MOBILE.equalsIgnoreCase(contactDetailType)){
+			contactDTO.setContactDetailType(ConstantsUtil.ContactDetailtype.MOBILE);
 			contactDTO.setNumber(contactData);
 		}
 
@@ -231,7 +341,8 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		return contactDetailsDTO;
 	}
 
-	private ProductDTO createProductDTO(ResponsePayloadQuotationDetailBO payload,QuotationJoinQuotationModDTO responseQuotation){
+	private ProductDTO createProductDTO(ResponsePayloadQuotationDetailBO payload,
+										QuotationJoinQuotationModDTO responseQuotation){
 		ProductDTO productDTO = new ProductDTO();
 
 		productDTO.setId(responseQuotation.getInsuranceProductType());
@@ -298,8 +409,10 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 
 	private DescriptionDTO getCoverageTypeDTO(CoverageBO cobertura) {
 		DescriptionDTO coverageType = new DescriptionDTO();
-		String coverageId = this.applicationConfigurationService.getProperty("COVERAGE_TYPE_" + cobertura.getCondicion());
-		String coverageName = this.applicationConfigurationService.getProperty(cobertura.getCondicion() + "_COVERAGE_NAME");
+		String coverageId = this.applicationConfigurationService.getProperty(
+				ConstantsUtil.StringConstants.COVERAGE_TYPE_PREFIX + cobertura.getCondicion());
+		String coverageName = this.applicationConfigurationService.getProperty(
+				cobertura.getCondicion() + ConstantsUtil.StringConstants.COVERAGE_NAME_SUFFIX);
 		coverageType.setId(coverageId);
 		coverageType.setName(coverageName);
 		return coverageType;
@@ -309,7 +422,7 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		List<InstallmentPlansDTO> installmentPlansDTOS = new ArrayList<>();
 
 		FinancingBO financingBO = planBO.getFinanciamientos().stream().filter(
-				financing -> "Anual".equalsIgnoreCase(financing.getPeriodicidad()))
+				financing -> ConstantsUtil.FinancingPeriodicity.ANUAL.equalsIgnoreCase(financing.getPeriodicidad()))
 				.findFirst().orElse(null);
 
 		if(financingBO != null){
@@ -360,7 +473,7 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 			String fechaInicio = planRimac.getFechaInicio();
 			String fechaFin = planRimac.getFechaFin();
 
-			if(!ValidateUtils.stringIsNullOrEmpty(fechaInicio) && !ValidateUtils.stringIsNullOrEmpty(fechaFin)){
+			if(ValidateUtils.allValuesNotNullOrEmpty(fechaFin,fechaInicio)){
 				ValidityPeriodDTO validityPeriod = new ValidityPeriodDTO();
 				validityPeriod.setStartDate(ConvertUtils.convertStringDateToDate(fechaInicio));
 				validityPeriod.setEndDate(ConvertUtils.convertStringDateToDate(fechaFin));
@@ -376,14 +489,15 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 
 	private Map<String, Object> getProductInformation(String quotationId) {
 		Map<String,Object> arguments = new HashMap<>();
-		arguments.put("POLICY_QUOTA_INTERNAL_ID", quotationId);
+		arguments.put(ConstantsUtil.QuotationMap.POLICY_QUOTA_INTERNAL_ID, quotationId);
 		return (Map<String,Object>) this.pisdR401.executeGetProductById(
-				"PISD.GET_RIMAC_QUOT_AND_PRODUCT_INFO_BY_POLICY_QUOTA_INTERNAL_ID",arguments);
+				ConstantsUtil.QueriesName.QUERY_GET_COMPANY_QUOTA_ID_AND_PRODUCT_SHORT_DESC,arguments);
 	}
 
 	private ResponseQuotationDetailBO executeQuotationDetailRimac(InputQuotationDetailBO params){
 
-		LOGGER.info("RBVDR407Impl - executeQuotationDetailRimac() | input params: {}", ConvertUtils.getRequestJsonFormat(params));
+		LOGGER.info("RBVDR407Impl - executeQuotationDetailRimac() | input params: {}",
+				ConvertUtils.getRequestJsonFormat(params));
 
 		String externalQuotationId = params.getCotizacion();
 		String productName = params.getProducto();
@@ -391,22 +505,23 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		ResponseEntity<ResponseQuotationDetailBO> rimacResponse = null;
 		ResponseQuotationDetailBO rimacResponseBody = null;
 
-		String uri = this.applicationConfigurationService.getProperty("rimac.quotationdetail.enterprise.uri");
-		uri = uri.replace("externalQuotationId",externalQuotationId).replace("productName",productName);
-		String queryString = "tipoCotizacion=" + quotationType;
+		String uri = this.applicationConfigurationService.getProperty(ConstantsUtil.QuotationDetailRimac.KEY_URI_FROM_CONSOLE);
+		uri = uri.replace(ConstantsUtil.QuotationDetailRimac.PATH_PARAM_EXTERNAL_QUOTATION_ID,externalQuotationId)
+				.replace(ConstantsUtil.QuotationDetailRimac.PATH_PARAM_PRODUCT_NAME,productName);
+		String queryString = ConstantsUtil.QuotationDetailRimac.QUERY_STRING_TIPO_COTIZACION + quotationType;
 
 		SignatureAWS signatureAws = this.pisdR014.executeSignatureConstruction(null, javax.ws.rs.HttpMethod.GET, uri,
 				queryString, params.getTraceId());
 		HttpEntity<String> entity = new HttpEntity<>(createHttpHeadersAWS(signatureAws));
 
 		Map<String, Object> pathParams = new HashMap<>();
-		pathParams.put("externalQuotationId", externalQuotationId);
-		pathParams.put("productName", productName);
-		pathParams.put("quotationType",quotationType);
+		pathParams.put(ConstantsUtil.QuotationDetailRimac.PATH_PARAM_EXTERNAL_QUOTATION_ID, externalQuotationId);
+		pathParams.put(ConstantsUtil.QuotationDetailRimac.PATH_PARAM_PRODUCT_NAME, productName);
+		pathParams.put(ConstantsUtil.QuotationDetailRimac.QUERY_PARAM_QUOTATION_TYPE,quotationType);
 
 		try {
-			rimacResponse = this.externalApiConnector.exchange("quotationdetail.enterprise.life",HttpMethod.GET,
-					entity,ResponseQuotationDetailBO.class,pathParams);
+			rimacResponse = this.externalApiConnector.exchange(ConstantsUtil.QuotationDetailRimac.KEY_RIMAC_SERVICE,
+					HttpMethod.GET, entity,ResponseQuotationDetailBO.class,pathParams);
 			rimacResponseBody = rimacResponse.getBody();
 
 			LOGGER.info("RBVDR407Impl - executeQuotationDetailRimac() | response rimac body: {}",
@@ -423,10 +538,10 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		HttpHeaders headers = new HttpHeaders();
 		MediaType mediaType = new MediaType("application","json", StandardCharsets.UTF_8);
 		headers.setContentType(mediaType);
-		headers.set("Authorization", signature.getAuthorization());
-		headers.set("X-Amz-Date", signature.getxAmzDate());
-		headers.set("x-api-key", signature.getxApiKey());
-		headers.set("traceId", signature.getTraceId());
+		headers.set(ConstantsUtil.HeaderSignatureAWS.AUTHORIZATION, signature.getAuthorization());
+		headers.set(ConstantsUtil.HeaderSignatureAWS.X_AMZ_DATE, signature.getxAmzDate());
+		headers.set(ConstantsUtil.HeaderSignatureAWS.X_API_KEY, signature.getxApiKey());
+		headers.set(ConstantsUtil.HeaderSignatureAWS.TRACEID, signature.getTraceId());
 		return headers;
 	}
 
