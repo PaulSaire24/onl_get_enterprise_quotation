@@ -7,6 +7,7 @@ import com.bbva.elara.domain.transaction.ThreadContext;
 
 import com.bbva.elara.utility.api.connector.APIConnector;
 import com.bbva.pisd.dto.insurance.amazon.SignatureAWS;
+import com.bbva.pisd.dto.insurancedao.entities.ModalityEntity;
 import com.bbva.pisd.dto.insurancedao.entities.QuotationEntity;
 import com.bbva.pisd.dto.insurancedao.entities.QuotationModEntity;
 import com.bbva.pisd.dto.insurancedao.join.QuotationJoinQuotationModDTO;
@@ -17,6 +18,7 @@ import com.bbva.pisd.lib.r601.PISDR601;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponseQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.mock.MockData;
+import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
 import com.bbva.rbvd.lib.r407.impl.RBVDR407Impl;
 
 import com.bbva.rbvd.lib.r407.impl.utils.ConvertUtils;
@@ -54,7 +56,6 @@ public class RBVDR407Test {
 	private ResponseQuotationDetailBO responseRimac;
 	private Map<String, Object> mapProductInfo = new HashMap<>();
 	private QuotationJoinQuotationModDTO quotationFromDB = new QuotationJoinQuotationModDTO();
-
 
 
 	@Before
@@ -119,6 +120,7 @@ public class RBVDR407Test {
 		QuotationJoinQuotationModDTO joinQuotationModDTO = new QuotationJoinQuotationModDTO();
 		QuotationEntity quotationEntity = new QuotationEntity();
 		QuotationModEntity quotationModEntity = new QuotationModEntity();
+		ModalityEntity modalityEntity = new ModalityEntity();
 
 		quotationEntity.setQuoteDate("2023-01-17");
 		quotationEntity.setUserAuditId("P121328");
@@ -132,9 +134,14 @@ public class RBVDR407Test {
 		quotationModEntity.setContactEmailDesc("cristian.segovia@bbva.com");
 		quotationModEntity.setCustomerPhoneDesc("983000443");
 
+		modalityEntity.setInsuranceCompanyModalityId("534272");
+		modalityEntity.setInsurModalityDesc("PLAN 02 VIDA LEY");
+		modalityEntity.setInsuranceModalityName("PLAN PLATA");
+
 		joinQuotationModDTO.setInsuranceProductType("842");
 		joinQuotationModDTO.setQuotation(quotationEntity);
 		joinQuotationModDTO.setQuotationMod(quotationModEntity);
+		joinQuotationModDTO.setModality(modalityEntity);
 
 		return joinQuotationModDTO;
 
@@ -161,7 +168,7 @@ public class RBVDR407Test {
 		Assert.assertEquals(1, response.getProduct().getPlans().size());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getId());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getName());
-		Assert.assertEquals(responseRimac.getPayload().getPlan().getDescripcionPlan(),
+		Assert.assertEquals(quotationFromDB.getModality().getInsuranceModalityName(),
 				response.getProduct().getPlans().get(0).getName());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getIsSelected());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getTotalInstallment());
@@ -301,10 +308,14 @@ public class RBVDR407Test {
 
 		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
 
-		Assert.assertNotNull(response);
-		Assert.assertNotNull(response.getProduct());
-		Assert.assertEquals(0, response.getProduct().getPlans().size());
-		Assert.assertNull(response.getValidityPeriod());
+		Assert.assertNull(response);
+
+		Mockito.verify(pisdr401,Mockito.atLeast(1)).executeGetProductById(
+				ConstantsUtil.QueriesName.QUERY_GET_COMPANY_QUOTA_ID_AND_PRODUCT_SHORT_DESC,
+				Collections.singletonMap(ConstantsUtil.QuotationMap.POLICY_QUOTA_INTERNAL_ID, quotationId));
+
+		Mockito.verify(pisdr601,Mockito.atLeast(1)).executeFindQuotationInfoByQuotationId(quotationId);
+
 	}
 
 	@Test
