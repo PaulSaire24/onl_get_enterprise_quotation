@@ -1,11 +1,14 @@
 package com.bbva.rbvd.lib.r407.impl.utils;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class ConvertUtils {
+
+    private ConvertUtils(){}
 
     public static String getRequestJsonFormat(final Object requestBody) {
         return JsonUtils.getInstance().serialization(requestBody);
@@ -19,6 +22,31 @@ public class ConvertUtils {
     public static LocalDate convertStringDateToLocalDate(String dateStr){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return LocalDate.parse(dateStr,formatter);
+    }
+
+    public static String convertStringToUpperAndLowerCase(String value){
+        StringBuilder str = new StringBuilder();
+        str.append(value.toUpperCase().charAt(0));
+        str.append(value.toLowerCase().substring(1));
+
+        return str.toString();
+    }
+
+    public static BigDecimal getBigDecimalValue(Object value){
+        BigDecimal ret = null;
+        if(value != null){
+            if(value instanceof BigDecimal){
+                ret = (BigDecimal) value;
+            }else if(value instanceof String){
+                ret = new BigDecimal((String) value);
+            }else if(value instanceof Double){
+                ret = BigDecimal.valueOf(((Double) value).doubleValue());
+            }else if(value instanceof Integer){
+                ret = BigDecimal.valueOf((Integer) value);
+            }
+        }
+
+        return ret;
     }
 
 
