@@ -1,7 +1,6 @@
 package com.bbva.rbvd.lib.r407.impl.business.impl;
 
 import com.bbva.elara.configuration.manager.application.ApplicationConfigurationService;
-import com.bbva.pisd.dto.insurancedao.join.QuotationJoinQuotationModDTO;
 
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ProductDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PlanDTO;
@@ -16,6 +15,7 @@ import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.InstallmentFinancingB
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.CoverageBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.AssistanceBO;
 
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.QuotationDAO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponsePayloadQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
 import com.bbva.rbvd.lib.r407.impl.business.IProductBusiness;
@@ -35,8 +35,8 @@ public class ProductBusinessImpl implements IProductBusiness {
     }
 
     @Override
-    public ProductDTO constructProductInfo(ResponsePayloadQuotationDetailBO payload,
-                                           QuotationJoinQuotationModDTO responseQuotation) {
+    public ProductDTO constructProduct(ResponsePayloadQuotationDetailBO payload,
+                                           QuotationDAO responseQuotation) {
         ProductDTO productDTO = new ProductDTO();
 
         productDTO.setId(responseQuotation.getInsuranceProductType());
@@ -46,13 +46,13 @@ public class ProductBusinessImpl implements IProductBusiness {
         return productDTO;
     }
 
-    private List<PlanDTO> constructPlansInProduct(PlanBO planBO, QuotationJoinQuotationModDTO responseQuotation){
+    private List<PlanDTO> constructPlansInProduct(PlanBO planBO, QuotationDAO responseQuotation){
         if(planBO != null){
             List<PlanDTO> plans = new ArrayList<>();
             PlanDTO planDTO = new PlanDTO();
 
-            planDTO.setId(responseQuotation.getQuotationMod().getInsuranceModalityType());
-            planDTO.setName(responseQuotation.getModality().getInsuranceModalityName());
+            planDTO.setId(responseQuotation.getInsuranceModalityType());
+            planDTO.setName(responseQuotation.getInsuranceModalityName());
             planDTO.setIsSelected(Boolean.TRUE);
             planDTO.setTotalInstallment(constructTotalInstallmentFromRimac(planBO));
             planDTO.setInstallmentPlans(constructInstallmentPlanFromRimac(planBO));

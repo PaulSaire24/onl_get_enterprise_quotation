@@ -1,14 +1,13 @@
 package com.bbva.rbvd.lib.r407.impl;
 
 
-import com.bbva.pisd.dto.insurancedao.join.QuotationJoinQuotationModDTO;
-
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ValidityPeriodDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
 
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.PlanBO;
 
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.QuotationDAO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.InputQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponseQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
@@ -28,6 +27,8 @@ import com.bbva.rbvd.lib.r407.impl.service.dao.IProductDAO;
 import com.bbva.rbvd.lib.r407.impl.service.dao.IQuotationDAO;
 import com.bbva.rbvd.lib.r407.impl.service.dao.impl.ProductDAOImpl;
 import com.bbva.rbvd.lib.r407.impl.service.dao.impl.QuotationDAOImpl;
+import com.bbva.rbvd.lib.r407.impl.transform.bean.QuotationBean;
+
 import com.bbva.rbvd.lib.r407.impl.utils.ConvertUtils;
 import com.bbva.rbvd.lib.r407.impl.utils.ValidateUtils;
 import org.slf4j.Logger;
@@ -66,29 +67,30 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 			return null;
 		}
 
-		QuotationJoinQuotationModDTO responseQuotation = this.pisdR601.executeFindQuotationInfoByQuotationId(quotationId);
-		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | responseQuotation: {}",responseQuotation);
+		IQuotationDAO quotationDAO = new QuotationDAOImpl(this.pisdR402);
+		Map<String,Object> responseQuotationMap = quotationDAO.getQuotationDetailByQuotationId(quotationId);
 
-		if(responseQuotation == null || responseQuotation.getQuotation() == null ||
-				responseQuotation.getQuotationMod() == null || responseQuotation.getModality() == null){
+		if(ValidateUtils.mapIsNullOrEmpty(responseQuotationMap)){
 			this.addAdviceWithDescription(RBVDErrors.ERROR_PRODUCT_BY_SIMULATION.getAdviceCode(),
 					RBVDErrors.ERROR_PRODUCT_BY_SIMULATION.getMessage());
 			return null;
 		}
 
-		IQuotationDAO quotationDAO = new QuotationDAOImpl(this.pisdR402);
+		QuotationDAO responseQuotation = QuotationBean.transformQuotationMapToBean(responseQuotationMap);
+		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | responseQuotation: {}",responseQuotation);
+
 		BigDecimal insuranceProductId = ConvertUtils.getBigDecimalValue(responseProductMap.get(
 				ConstantsUtil.InsurancePrdModality.FIELD_INSURANCE_PRODUCT_ID));
-		String modalityType = responseQuotation.getQuotationMod().getInsuranceModalityType();
+		String modalityType = responseQuotation.getInsuranceModalityType();
 
-		Map<String, Object> employeeInfoMap = quotationDAO.getEmployeesInfoFromDB(quotationId, insuranceProductId,
+		Map<String, Object> employeeDataMap = quotationDAO.getEmployeesData(quotationId, insuranceProductId,
 				modalityType);
-		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | employeeInfo: {}",employeeInfoMap);
+		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | employeeDataMap: {}",employeeDataMap);
 
-		Map<String,Object> paymentDetailsMap = quotationDAO.getPaymentDetailsByQuotationFromDB(quotationId);
+		Map<String,Object> paymentDetailsMap = quotationDAO.getPaymentDetailsByQuotationId(quotationId);
 		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | paymentDetailsMap: {}",paymentDetailsMap);
 
-		String quotationReference = responseQuotation.getQuotation().getRfqInternalId();
+		String quotationReference = responseQuotation.getRfqInternalId();
 
 		ResponseQuotationDetailBO responseRimac = callRimacService(responseProductMap,quotationReference,traceId);
 		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | responseRimac: {}",responseRimac);
@@ -100,22 +102,23 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		}
 
 		response.setId(quotationId);
-		response.setQuotationDate(ConvertUtils.convertStringDateToLocalDate(responseQuotation.getQuotation().getQuoteDate()));
+		response.setQuotationDate(ConvertUtils.convertStringDateToLocalDate(responseQuotation.getQuoteDate()));
 
 		IEmployeesBusiness employeesBusiness = new EmployeesBusinessImpl();
-		response.setEmployees(employeesBusiness.constructEmployeesInfo(employeeInfoMap));
+		response.setEmployees(employeesBusiness.constructEmployees(employeeDataMap));
 
 		IProductBusiness productBusiness = new ProductBusinessImpl(this.applicationConfigurationService);
-		response.setProduct(productBusiness.constructProductInfo(responseRimac.getPayload(),responseQuotation));
+		response.setProduct(productBusiness.constructProduct(responseRimac.getPayload(),responseQuotation));
 
 		IContactDetailsBusiness contactDetailsBusiness = new ContactDetailsBusinessImpl();
-		response.setContactDetails(contactDetailsBusiness.constructContactDetailsInfo(responseQuotation.getQuotationMod()));
+		response.setContactDetails(contactDetailsBusiness.constructContactDetails(
+				responseQuotation.getContactEmailDesc(),responseQuotation.getCustomerPhoneDesc()));
 
 		response.setValidityPeriod(createValidityPeriodDTO(responseRimac.getPayload().getPlan()));
-		response.setBusinessAgent(createBusinessAgentDTO(responseQuotation.getQuotation().getUserAuditId()));
+		response.setBusinessAgent(createBusinessAgentDTO(responseQuotation.getUserAuditId()));
 
 		IParticipantsBusiness participantsBusiness = new PariticipantsBusinessImpl(this.applicationConfigurationService);
-		response.setParticipants(participantsBusiness.constructParticipantsInfo(responseQuotation.getQuotation()));
+		response.setParticipants(participantsBusiness.constructParticipants(responseQuotation));
 
 		response.setQuotationReference(quotationReference);
 		response.setStatus(null);
@@ -125,8 +128,8 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 			response.setBank(null);
 		}else{
 			IPaymentBusiness paymentBusiness = new PaymentBusinessImpl(paymentDetailsMap,this.applicationConfigurationService);
-			response.setPaymentMethod(paymentBusiness.constructPaymentMethodInfo());
-			response.setBank(paymentBusiness.constructBankInfo());
+			response.setPaymentMethod(paymentBusiness.constructPaymentMethod());
+			response.setBank(paymentBusiness.constructBank());
 		}
 
 		return response;

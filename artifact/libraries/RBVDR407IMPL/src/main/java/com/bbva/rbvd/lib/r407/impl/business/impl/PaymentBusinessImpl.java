@@ -27,7 +27,7 @@ public class PaymentBusinessImpl implements IPaymentBusiness {
     }
 
     @Override
-    public PaymentMethodDTO constructPaymentMethodInfo() {
+    public PaymentMethodDTO constructPaymentMethod() {
         String paymentType = (String) paymentDetailsMap.get(
                 ConstantsUtil.InsuranceContract.FIELD_AUTOMATIC_DEBIT_INDICATOR_TYPE);
         String frequency = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_PAYMENT_FREQUENCY_NAME);
@@ -71,7 +71,7 @@ public class PaymentBusinessImpl implements IPaymentBusiness {
     }
 
     @Override
-    public BankDTO constructBankInfo() {
+    public BankDTO constructBank() {
         String entity = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_INSURANCE_CONTRACT_ENTITY_ID);
         String branch = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_CONTRACT_MANAGER_BRANCH_ID);
 

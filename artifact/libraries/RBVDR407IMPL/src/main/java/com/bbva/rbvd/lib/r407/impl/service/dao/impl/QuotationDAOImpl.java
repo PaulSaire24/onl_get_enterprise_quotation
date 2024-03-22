@@ -17,7 +17,15 @@ public class QuotationDAOImpl implements IQuotationDAO {
     }
 
     @Override
-    public Map<String, Object> getEmployeesInfoFromDB(String quotationId, BigDecimal insuranceProductId, String modalityType) {
+    public Map<String, Object> getQuotationDetailByQuotationId(String quotationId) {
+        Map<String,Object> arguments = new HashMap<>();
+        arguments.put(ConstantsUtil.QuotationMap.POLICY_QUOTA_INTERNAL_ID,quotationId);
+        return this.pisdR402.executeGetASingleRow(
+                "PISD.FIND_QUOTATION_DETAIL_BY_INTERNAL_QUOTATION",arguments);
+    }
+
+    @Override
+    public Map<String, Object> getEmployeesData(String quotationId, BigDecimal insuranceProductId, String modalityType) {
         Map<String,Object> arguments = new HashMap<>();
         arguments.put(ConstantsUtil.QuotationMap.POLICY_QUOTA_INTERNAL_ID, quotationId);
         arguments.put(ConstantsUtil.InsurancePrdModality.FIELD_INSURANCE_PRODUCT_ID,insuranceProductId);
@@ -27,7 +35,7 @@ public class QuotationDAOImpl implements IQuotationDAO {
     }
 
     @Override
-    public Map<String, Object> getPaymentDetailsByQuotationFromDB(String quotationId) {
+    public Map<String, Object> getPaymentDetailsByQuotationId(String quotationId) {
         Map<String,Object> arguments = new HashMap<>();
         arguments.put(ConstantsUtil.QuotationMap.POLICY_QUOTA_INTERNAL_ID, quotationId);
         return this.pisdR402.executeGetASingleRow(

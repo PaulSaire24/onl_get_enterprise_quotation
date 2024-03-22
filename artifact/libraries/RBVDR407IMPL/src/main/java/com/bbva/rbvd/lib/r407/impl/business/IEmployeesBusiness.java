@@ -6,6 +6,6 @@ import java.util.Map;
 
 public interface IEmployeesBusiness {
 
-    EmployeesDTO constructEmployeesInfo(Map<String,Object> employeeInfo);
+    EmployeesDTO constructEmployees(Map<String,Object> employeeInfo);
 
 }

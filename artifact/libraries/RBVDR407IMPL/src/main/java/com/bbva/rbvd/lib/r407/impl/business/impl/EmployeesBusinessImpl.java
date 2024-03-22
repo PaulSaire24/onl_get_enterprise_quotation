@@ -18,7 +18,7 @@ public class EmployeesBusinessImpl implements IEmployeesBusiness {
 
 
     @Override
-    public EmployeesDTO constructEmployeesInfo(Map<String, Object> employeeInfo) {
+    public EmployeesDTO constructEmployees(Map<String, Object> employeeInfo) {
         if(!ValidateUtils.mapIsNullOrEmpty(employeeInfo) && ValidateUtils.mapNotContainsNullValue(employeeInfo)){
             LOGGER.info("EmployeesBusinessImpl - constructEmployeesInResponseTrx() - employeeInfo not null");
 

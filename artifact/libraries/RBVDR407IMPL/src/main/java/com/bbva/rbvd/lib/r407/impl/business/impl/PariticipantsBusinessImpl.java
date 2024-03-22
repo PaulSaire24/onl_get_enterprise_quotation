@@ -1,10 +1,10 @@
 package com.bbva.rbvd.lib.r407.impl.business.impl;
 
 import com.bbva.elara.configuration.manager.application.ApplicationConfigurationService;
-import com.bbva.pisd.dto.insurancedao.entities.QuotationEntity;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.IdentityDocumentDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ParticipantDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.QuotationDAO;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
 import com.bbva.rbvd.lib.r407.impl.business.IParticipantsBusiness;
 import com.bbva.rbvd.lib.r407.impl.utils.ValidateUtils;
@@ -21,17 +21,19 @@ public class PariticipantsBusinessImpl implements IParticipantsBusiness {
     }
 
     @Override
-    public List<ParticipantDTO> constructParticipantsInfo(QuotationEntity quotationEntity) {
+    public List<ParticipantDTO> constructParticipants(QuotationDAO quotationDAO) {
         List<ParticipantDTO> participantDTOS = new ArrayList<>();
 
-        if(!ValidateUtils.stringIsNullOrEmpty(quotationEntity.getCustomerId())){
+        if(!ValidateUtils.stringIsNullOrEmpty(quotationDAO.getCustomerId())){
             ParticipantDTO participantHolder = new ParticipantDTO();
 
-            participantHolder.setId(quotationEntity.getCustomerId());
+            participantHolder.setId(quotationDAO.getCustomerId());
 
-            if(ValidateUtils.allValuesNotNullOrEmpty(
-                    quotationEntity.getPersonalDocType(),quotationEntity.getParticipantPersonalId())){
-                participantHolder.setIdentityDocument(getIdentityDocumentFromDB(quotationEntity));
+            String documentType = quotationDAO.getPersonalDocType();
+            String documentNumber = quotationDAO.getParticipantPersonalId();
+
+            if(ValidateUtils.allValuesNotNullOrEmpty(documentType,documentNumber)){
+                participantHolder.setIdentityDocument(getIdentityDocumentFromDB(documentType,documentNumber));
             }
 
             DescriptionDTO participantType = new DescriptionDTO();
@@ -44,13 +46,13 @@ public class PariticipantsBusinessImpl implements IParticipantsBusiness {
         return participantDTOS;
     }
 
-    private IdentityDocumentDTO getIdentityDocumentFromDB(QuotationEntity quotationEntity) {
+    private IdentityDocumentDTO getIdentityDocumentFromDB(String documentType,String documentNumber) {
         IdentityDocumentDTO identityDocument = new IdentityDocumentDTO();
 
-        DescriptionDTO documentType = new DescriptionDTO();
-        documentType.setId(this.applicationConfigurationService.getProperty(quotationEntity.getPersonalDocType()));
-        identityDocument.setDocumentNumber(quotationEntity.getParticipantPersonalId());
-        identityDocument.setDocumentType(documentType);
+        DescriptionDTO documentTypeDTO = new DescriptionDTO();
+        documentTypeDTO.setId(this.applicationConfigurationService.getProperty(documentType));
+        identityDocument.setDocumentNumber(documentNumber);
+        identityDocument.setDocumentType(documentTypeDTO);
 
         return identityDocument;
     }

@@ -6,8 +6,8 @@ import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PaymentMethodDTO;
 
 public interface IPaymentBusiness {
 
-    PaymentMethodDTO constructPaymentMethodInfo();
+    PaymentMethodDTO constructPaymentMethod();
 
-    BankDTO constructBankInfo();
+    BankDTO constructBank();
 
 }

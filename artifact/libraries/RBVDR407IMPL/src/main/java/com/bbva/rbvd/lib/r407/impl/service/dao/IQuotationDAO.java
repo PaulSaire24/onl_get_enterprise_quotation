@@ -5,7 +5,9 @@ import java.util.Map;
 
 public interface IQuotationDAO {
 
-    Map<String, Object> getEmployeesInfoFromDB(String quotationId, BigDecimal insuranceProductId, String modalityType);
+    Map<String,Object> getQuotationDetailByQuotationId(String quotationId);
 
-    Map<String,Object> getPaymentDetailsByQuotationFromDB(String quotationId);
+    Map<String, Object> getEmployeesData(String quotationId, BigDecimal insuranceProductId, String modalityType);
+
+    Map<String,Object> getPaymentDetailsByQuotationId(String quotationId);
 }

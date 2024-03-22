@@ -1,6 +1,5 @@
 package com.bbva.rbvd.lib.r407.impl.business.impl;
 
-import com.bbva.pisd.dto.insurancedao.entities.QuotationModEntity;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDetailsDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
@@ -13,18 +12,18 @@ import java.util.List;
 public class ContactDetailsBusinessImpl implements IContactDetailsBusiness {
 
     @Override
-    public List<ContactDetailsDTO> constructContactDetailsInfo(QuotationModEntity quotationModEntity) {
+    public List<ContactDetailsDTO> constructContactDetails(String email,String phone) {
         List<ContactDetailsDTO> contacts = new ArrayList<>();
 
-        if(!ValidateUtils.stringIsNullOrEmpty(quotationModEntity.getContactEmailDesc())){
+        if(!ValidateUtils.stringIsNullOrEmpty(email)){
             ContactDetailsDTO contactDetailsDTO = createContactDetailPerType(
-                    ConstantsUtil.ContactDetailtype.EMAIL,quotationModEntity.getContactEmailDesc());
+                    ConstantsUtil.ContactDetailtype.EMAIL,email);
             contacts.add(contactDetailsDTO);
         }
 
-        if(!ValidateUtils.stringIsNullOrEmpty(quotationModEntity.getCustomerPhoneDesc())){
+        if(!ValidateUtils.stringIsNullOrEmpty(phone)){
             ContactDetailsDTO contactDetailsDTO = createContactDetailPerType(
-                    ConstantsUtil.ContactDetailtype.MOBILE,quotationModEntity.getCustomerPhoneDesc());
+                    ConstantsUtil.ContactDetailtype.MOBILE,phone);
             contacts.add(contactDetailsDTO);
         }
 
