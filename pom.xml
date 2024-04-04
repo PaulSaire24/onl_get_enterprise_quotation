@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>onl_get_enterprise_quotation</artifactId>
 	<groupId>com.bbva.rbvd</groupId>
-	<version>0.2.1</version>
+	<version>0.3.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>onl_get_enterprise_quotation</name>
 	<description>Deployment unit onl_get_enterprise_quotation of uuaa rbvd</description>
