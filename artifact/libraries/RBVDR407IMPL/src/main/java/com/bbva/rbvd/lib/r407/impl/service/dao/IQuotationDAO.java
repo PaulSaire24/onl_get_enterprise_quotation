@@ -10,4 +10,7 @@ public interface IQuotationDAO {
     Map<String, Object> getEmployeesData(String quotationId, BigDecimal insuranceProductId, String modalityType);
 
     Map<String,Object> getPaymentDetailsByQuotationId(String quotationId);
+
+    int updatePremiumAmount(String quotationId, BigDecimal insuranceProductId, String modalityType,BigDecimal amount,
+                            String transactionCode);
 }
