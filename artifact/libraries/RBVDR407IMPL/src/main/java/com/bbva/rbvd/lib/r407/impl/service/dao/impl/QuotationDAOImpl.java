@@ -3,6 +3,7 @@ package com.bbva.rbvd.lib.r407.impl.service.dao.impl;
 import com.bbva.pisd.lib.r402.PISDR402;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
 import com.bbva.rbvd.lib.r407.impl.service.dao.IQuotationDAO;
+import com.bbva.rbvd.lib.r407.impl.transform.map.QuotationMap;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -41,5 +42,14 @@ public class QuotationDAOImpl implements IQuotationDAO {
         return this.pisdR402.executeGetASingleRow(
                 ConstantsUtil.QueriesName.QUERY_FIND_PAYMENTMETHOD_FROM_QUOTATION,arguments);
     }
+
+    @Override
+    public int updatePremiumAmount(String quotationId, BigDecimal insuranceProductId, String modalityType,
+                                   BigDecimal amount, String transactionCode) {
+        Map<String,Object> arguments = QuotationMap.argumentUpdatePremiumAmount(quotationId, insuranceProductId,
+                modalityType, amount, transactionCode);
+        return this.pisdR402.executeInsertSingleRow("PISD.UPDATE_PREMIUM_AMOUNT_IN_NORMAL_QUOTATION",arguments);
+    }
+
 
 }

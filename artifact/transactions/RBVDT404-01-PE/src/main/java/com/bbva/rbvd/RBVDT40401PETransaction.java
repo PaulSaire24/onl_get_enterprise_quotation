@@ -31,9 +31,12 @@ public class RBVDT40401PETransaction extends AbstractRBVDT40401PETransaction {
 		RBVDR407 rbvdR407 = this.getServiceLibrary(RBVDR407.class);
 
 		String quotationId = this.getQuotationid();
-		String traceId = (String) this.getContext().getTransactionRequest().getHeader().getHeaderParameter(RequestHeaderParamsName.REQUESTID);
+		String traceId = (String) this.getContext().getTransactionRequest().getHeader().getHeaderParameter(
+				RequestHeaderParamsName.REQUESTID);
+		String transactionCode = (String) this.getContext().getTransactionRequest().getHeader().getHeaderParameter(
+				RequestHeaderParamsName.LOGICALTRANSACTIONCODE);
 
-		EnterpriseQuotationDTO response = rbvdR407.executeGetQuotationLogic(quotationId,traceId);
+		EnterpriseQuotationDTO response = rbvdR407.executeGetQuotationLogic(quotationId,traceId,transactionCode);
 
 		if(nonNull(response)) {
 			LOGGER.info("RBVDT40401PETransaction - Response : {}",response);

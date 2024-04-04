@@ -51,7 +51,7 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 	 * The executeGetQuotationLogic method...
 	 */
 	@Override
-	public EnterpriseQuotationDTO executeGetQuotationLogic(String quotationId,String traceId) {
+	public EnterpriseQuotationDTO executeGetQuotationLogic(String quotationId,String traceId,String transactionCode) {
 
 		LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | START");
 
@@ -132,6 +132,18 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 			response.setBank(paymentBusiness.constructBank());
 		}
 
+		String quotationType = getQuotationTypeByQuoteReference(quotationReference);
+		if(quotationType.equals(ConstantsUtil.StringConstants.C)){
+			int updateAmountResult = quotationDAO.updatePremiumAmount(
+					quotationId,
+					insuranceProductId,
+					responseQuotation.getInsuranceModalityType(),
+					responseRimac.getPayload().getPlan().getPrimaBruta(),
+					transactionCode
+			);
+			LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | updateAmountResult: {}",updateAmountResult);
+		}
+
 		return response;
 	}
 
@@ -141,13 +153,7 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		String externalQuotationId = (String) responseProductMap.get(ConstantsUtil.QuotationMap.INSURANCE_COMPANY_QUOTA_ID);
 		String productShortDesc = (String) responseProductMap.get(ConstantsUtil.InsuranceProduct.FIELD_PRODUCT_SHORT_DESC);
 
-		String quotationType;
-
-		if(ValidateUtils.stringIsNullOrEmpty(quotationReference)){
-			quotationType = ConstantsUtil.StringConstants.R;
-		}else{
-			quotationType = ConstantsUtil.StringConstants.C;
-		}
+		String quotationType = getQuotationTypeByQuoteReference(quotationReference);
 
 		InputQuotationDetailBO inputRimac = new InputQuotationDetailBO();
 		inputRimac.setCotizacion(externalQuotationId);
@@ -161,6 +167,18 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		consumerExternalService.setPisdR014(this.pisdR014);
 
 		return consumerExternalService.executeQuotationDetailRimac(inputRimac);
+	}
+
+	private static String getQuotationTypeByQuoteReference(String quotationReference) {
+		String quotationType;
+
+		if(ValidateUtils.stringIsNullOrEmpty(quotationReference)){
+			quotationType = ConstantsUtil.StringConstants.R;
+		}else{
+			quotationType = ConstantsUtil.StringConstants.C;
+		}
+
+		return quotationType;
 	}
 
 	private DescriptionDTO createBusinessAgentDTO(String auditId){
