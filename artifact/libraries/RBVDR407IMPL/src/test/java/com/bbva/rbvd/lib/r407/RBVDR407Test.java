@@ -54,6 +54,7 @@ public class RBVDR407Test {
 	private ResponseQuotationDetailBO responseRimac;
 	private Map<String, Object> mapProductInfo = new HashMap<>();
 	private Map<String,Object> policyQuotaInternalId;
+	private String transactionCode = "RBVDT404";
 
 
 	@Before
@@ -177,7 +178,7 @@ public class RBVDR407Test {
 	@Test
 	public void executeGetQuotationLogic_TestOK() {
 
-		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId",transactionCode);
 
 		Assert.assertNotNull(response);
 
@@ -257,7 +258,7 @@ public class RBVDR407Test {
 						policyQuotaInternalId))
 				.thenReturn(mapProductInfo);
 
-		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId",transactionCode);
 
 		Assert.assertNull(response);
 		Assert.assertNotNull(context.getAdviceList());
@@ -272,7 +273,7 @@ public class RBVDR407Test {
 						policyQuotaInternalId))
 				.thenReturn(null);
 
-		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId,"traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId,"traceId",transactionCode);
 
 		Assert.assertNull(response);
 		Assert.assertNotNull(context.getAdviceList());
@@ -294,7 +295,7 @@ public class RBVDR407Test {
 				new ResponseEntity<>(responseRimac, HttpStatus.BAD_REQUEST)
 		);
 
-		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId",transactionCode);
 
 		Assert.assertNull(response);
 		Assert.assertNotNull(context.getAdviceList());
@@ -311,7 +312,7 @@ public class RBVDR407Test {
 						policyQuotaInternalId))
 				.thenReturn(Collections.emptyMap());
 
-		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId",transactionCode);
 
 		Assert.assertNotNull(response);
 		Assert.assertNotNull(response.getId());
@@ -331,7 +332,7 @@ public class RBVDR407Test {
 						policyQuotaInternalId))
 				.thenReturn(quotatioNDetailMap);
 
-		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId",transactionCode);
 
 		Assert.assertNotNull(response);
 		Assert.assertNotNull(response.getQuotationDate());
@@ -340,51 +341,25 @@ public class RBVDR407Test {
 		Assert.assertNull(response.getBusinessAgent());
 	}
 
-
-	/*
-
-
 	@Test
-	public void executeGetQuotationLogic_WithBenefitsRimacIsNull() {
-		responseRimac.getPayload().getPlan().setAsistencias(null);
+	public void executeTest_UpdatePremiumAmount(){
+		Map<String,Object> quotatioNDetailMap = dataQuotationDetailByQuotationId();
+		quotatioNDetailMap.put(ConstantsUtil.QuotationMap.FIELD_RFQ_INTERNAL_ID, "084764003821");
 
-		Mockito.when(this.externalApiConnector.exchange(Mockito.anyString(), Mockito.any(HttpMethod.class), Mockito.any(),
-				(Class<ResponseQuotationDetailBO>) Mockito.any(), Mockito.anyMap())).thenReturn(
-				new ResponseEntity<>(responseRimac, HttpStatus.OK)
-		);
+		Mockito.when(pisdr402.executeGetASingleRow(
+						"PISD.FIND_QUOTATION_DETAIL_BY_INTERNAL_QUOTATION",
+						policyQuotaInternalId))
+				.thenReturn(quotatioNDetailMap);
 
-		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
+		Mockito.when(pisdr402.executeInsertSingleRow("PISD.UPDATE_PREMIUM_AMOUNT_IN_NORMAL_QUOTATION",new HashMap<>()))
+				.thenReturn(1);
+
+
+		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId",transactionCode);
 
 		Assert.assertNotNull(response);
-		Assert.assertNotNull(response.getProduct());
-		Assert.assertNotNull(response.getProduct().getPlans());
-		Assert.assertNotNull(response.getProduct().getPlans().get(0).getId());
-		Assert.assertNotNull(response.getProduct().getPlans().get(0).getName());
-		Assert.assertEquals(0, response.getProduct().getPlans().get(0).getBenefits().size());
-		Assert.assertEquals(3, response.getProduct().getPlans().get(0).getCoverages().size());
+
 	}
 
-	@Test
-	public void executeGetQuotationLogic_WithCoveragesRimacIsNull() {
-		responseRimac.getPayload().getPlan().setCoberturas(null);
-
-		Mockito.when(this.externalApiConnector.exchange(Mockito.anyString(), Mockito.any(HttpMethod.class), Mockito.any(),
-				(Class<ResponseQuotationDetailBO>) Mockito.any(), Mockito.anyMap())).thenReturn(
-				new ResponseEntity<>(responseRimac, HttpStatus.OK)
-		);
-
-		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(quotationId, "traceId");
-
-		Assert.assertNotNull(response);
-		Assert.assertNotNull(response.getProduct());
-		Assert.assertNotNull(response.getProduct().getPlans());
-		Assert.assertNotNull(response.getProduct().getPlans().get(0).getId());
-		Assert.assertNotNull(response.getProduct().getPlans().get(0).getName());
-		Assert.assertEquals(3, response.getProduct().getPlans().get(0).getBenefits().size());
-		Assert.assertEquals(0, response.getProduct().getPlans().get(0).getCoverages().size());
-	}
-
-
-	 */
 	
 }
