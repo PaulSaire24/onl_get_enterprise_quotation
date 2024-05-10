@@ -21,6 +21,7 @@ import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
 import com.bbva.rbvd.lib.r407.impl.business.IProductBusiness;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,32 +48,28 @@ public class ProductBusinessImpl implements IProductBusiness {
     }
 
     private List<PlanDTO> constructPlansInProduct(PlanBO planBO, QuotationDAO responseQuotation){
-        if(planBO != null){
-            List<PlanDTO> plans = new ArrayList<>();
-            PlanDTO planDTO = new PlanDTO();
+        PlanDTO planDTO = new PlanDTO();
 
-            planDTO.setId(responseQuotation.getInsuranceModalityType());
-            planDTO.setName(responseQuotation.getInsuranceModalityName());
-            planDTO.setIsSelected(Boolean.TRUE);
-            planDTO.setTotalInstallment(constructTotalInstallmentFromRimac(planBO));
-            planDTO.setInstallmentPlans(constructInstallmentPlanFromRimac(planBO));
-            planDTO.setCoverages(constructCoveragesFromRimac(planBO.getCoberturas()));
-            planDTO.setBenefits(constructBenefitsFromRimac(planBO.getAsistencias()));
+        planDTO.setId(responseQuotation.getInsuranceModalityType());
+        planDTO.setName(responseQuotation.getInsuranceModalityName());
+        planDTO.setIsSelected(Boolean.TRUE);
+        planDTO.setTotalInstallment(constructAmountFromRimac(planBO.getPrimaBruta(),planBO.getMoneda()));
+        planDTO.setInstallmentPlans(constructInstallmentPlanFromRimac(planBO));
+        planDTO.setCoverages(constructCoveragesFromRimac(planBO.getCoberturas()));
+        planDTO.setBenefits(constructBenefitsFromRimac(planBO.getAsistencias()));
 
-            plans.add(planDTO);
-
-            return plans;
-        }else{
-            return Collections.emptyList();
-        }
+        return Collections.singletonList(planDTO);
     }
 
-    private static AmountDTO constructTotalInstallmentFromRimac(PlanBO planBO){
-        AmountDTO totalInstallment = new AmountDTO();
-        totalInstallment.setAmount(planBO.getPrimaBruta().doubleValue());
-        totalInstallment.setCurrency(planBO.getMoneda());
+    private static AmountDTO constructAmountFromRimac(BigDecimal amount, String currency){
+        if(amount != null && currency != null){
+            AmountDTO installment = new AmountDTO();
+            installment.setAmount(amount.doubleValue());
+            installment.setCurrency(currency);
 
-        return totalInstallment;
+            return installment;
+        }
+        return null;
     }
 
     private List<InstallmentPlansDTO> constructInstallmentPlanFromRimac(PlanBO planBO){
@@ -100,11 +97,7 @@ public class ProductBusinessImpl implements IProductBusiness {
         if(CollectionUtils.isEmpty(cuotasFinanciamiento)){
             return null;
         }else{
-            AmountDTO paymentAmount = new AmountDTO();
-            paymentAmount.setAmount(cuotasFinanciamiento.get(0).getMonto().doubleValue());
-            paymentAmount.setCurrency(moneda);
-
-            return paymentAmount;
+            return constructAmountFromRimac(cuotasFinanciamiento.get(0).getMonto(),moneda);
         }
     }
 

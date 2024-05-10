@@ -26,6 +26,10 @@
 					<dto order="5" name="totalInstallment" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
 						<parameter order="1" name="amount" mandatory="1" type="Double" size="18"/>
 						<parameter order="2" name="currency" mandatory="1" type="String" size="3"/>
+						<dto order="3" name="period" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO" artifactId="RBVDC402">
+							<parameter order="1" name="id" mandatory="1" type="String" size="20"/>
+							<parameter order="2" name="name" mandatory="0" type="String" size="20"/>
+						</dto>
 					</dto>
 					<list order="6" name="installmentPlans" mandatory="0">
 						<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.InstallmentPlansDTO" artifactId="RBVDC402">
@@ -48,6 +52,10 @@
 							<dto order="4" name="coverageType" mandatory="1" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO" artifactId="RBVDC402">
 								<parameter order="1" name="id" mandatory="1" type="String" size="15"/>
 								<parameter order="2" name="name" mandatory="0" type="String" size="15"/>
+							</dto>
+							<dto order="5" name="insuredAmount" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
+								<parameter order="1" name="amount" mandatory="1" type="Double" size="20"/>
+								<parameter order="2" name="currency" mandatory="1" type="String" size="3"/>
 							</dto>
 						</dto>
 					</list>
@@ -131,6 +139,10 @@
 			<dto order="2" name="branch" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO" artifactId="RBVDC402">
 				<parameter order="1" name="id" mandatory="1" type="String" size="10"/>
 			</dto>
+		</dto>
+		<dto order="13" name="insuredAmount" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
+			<parameter order="1" name="amount" mandatory="1" type="Double" size="20"/>
+			<parameter order="2" name="currency" mandatory="1" type="String" size="3"/>
 		</dto>
 	</paramsOut>
 	<description>getquotation</description>
