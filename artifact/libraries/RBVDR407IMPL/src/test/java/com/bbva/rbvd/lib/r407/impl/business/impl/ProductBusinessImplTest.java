@@ -62,4 +62,14 @@ public class ProductBusinessImplTest {
         Assert.assertTrue(constructProduct.getPlans().get(0).getBenefits().isEmpty());
     }
 
+    @Test
+    public void testFinancingNull(){
+        responseRimac.getPayload().getPlan().setFinanciamientos(null);
+
+        ProductDTO constructProduct = productBusiness.constructProduct(responseRimac.getPayload(), responseQuotation);
+
+        Assert.assertNotNull(constructProduct);
+        Assert.assertNull(constructProduct.getPlans().get(0).getInstallmentPlans());
+    }
+
 }

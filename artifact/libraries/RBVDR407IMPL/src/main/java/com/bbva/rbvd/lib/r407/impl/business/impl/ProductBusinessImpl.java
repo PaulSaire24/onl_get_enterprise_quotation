@@ -73,24 +73,28 @@ public class ProductBusinessImpl implements IProductBusiness {
     }
 
     private List<InstallmentPlansDTO> constructInstallmentPlanFromRimac(PlanBO planBO){
-        List<InstallmentPlansDTO> installmentPlansDTOS = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(planBO.getFinanciamientos())){
+            List<InstallmentPlansDTO> installmentPlansDTOS = new ArrayList<>();
 
-        FinancingBO financingBO = planBO.getFinanciamientos().stream().filter(
-                        financing -> ConstantsUtil.FinancingPeriodicity.ANUAL.equalsIgnoreCase(financing.getPeriodicidad()))
-                .findFirst().orElse(null);
+            FinancingBO financingBO = planBO.getFinanciamientos().stream().filter(
+                            financing -> ConstantsUtil.FinancingPeriodicity.ANUAL.equalsIgnoreCase(financing.getPeriodicidad()))
+                    .findFirst().orElse(null);
 
-        if(financingBO != null){
-            InstallmentPlansDTO installmentPlan = new InstallmentPlansDTO();
+            if(financingBO != null){
+                InstallmentPlansDTO installmentPlan = new InstallmentPlansDTO();
 
-            installmentPlan.setPaymentsTotalNumber(financingBO.getNumeroCuotas());
-            installmentPlan.setPaymentAmount(createPaymentAmount(
-                    financingBO.getCuotasFinanciamiento(),planBO.getMoneda()));
-            installmentPlan.setPeriod(createPeriod(financingBO.getPeriodicidad()));
+                installmentPlan.setPaymentsTotalNumber(financingBO.getNumeroCuotas());
+                installmentPlan.setPaymentAmount(createPaymentAmount(
+                        financingBO.getCuotasFinanciamiento(),planBO.getMoneda()));
+                installmentPlan.setPeriod(createPeriod(financingBO.getPeriodicidad()));
 
-            installmentPlansDTOS.add(installmentPlan);
+                installmentPlansDTOS.add(installmentPlan);
+            }
+
+            return installmentPlansDTOS;
         }
+        return null;
 
-        return installmentPlansDTOS;
     }
 
     private AmountDTO createPaymentAmount(List<InstallmentFinancingBO> cuotasFinanciamiento, String moneda){
