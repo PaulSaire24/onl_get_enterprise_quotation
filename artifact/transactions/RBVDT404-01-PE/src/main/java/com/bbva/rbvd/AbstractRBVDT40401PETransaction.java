@@ -1,6 +1,7 @@
 package com.bbva.rbvd;
 
 import com.bbva.elara.transaction.AbstractTransaction;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.BankDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ContactDetailsDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
@@ -110,5 +111,12 @@ public abstract class AbstractRBVDT40401PETransaction extends AbstractTransactio
 	 */
 	protected void setBank(final BankDTO field){
 		this.addParameter("bank", field);
+	}
+
+	/**
+	 * Set value for AmountDTO output parameter insuredAmount
+	 */
+	protected void setInsuredamount(final AmountDTO field){
+		this.addParameter("insuredAmount", field);
 	}
 }

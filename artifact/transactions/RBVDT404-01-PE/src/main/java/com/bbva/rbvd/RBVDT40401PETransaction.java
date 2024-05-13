@@ -53,6 +53,7 @@ public class RBVDT40401PETransaction extends AbstractRBVDT40401PETransaction {
 			this.setStatus(response.getStatus());
 			this.setPaymentmethod(response.getPaymentMethod());
 			this.setBank(response.getBank());
+			this.setInsuredamount(response.getInsuredAmount());
 
 			this.setHttpResponseCode(HttpResponseCode.HTTP_CODE_200, Severity.OK);
 		} else {
