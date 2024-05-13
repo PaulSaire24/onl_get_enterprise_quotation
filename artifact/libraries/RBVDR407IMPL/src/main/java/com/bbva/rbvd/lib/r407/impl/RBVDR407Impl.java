@@ -133,12 +133,13 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		}
 
 		String quotationType = getQuotationTypeByQuoteReference(quotationReference);
-		if(quotationType.equals(ConstantsUtil.StringConstants.C)){
+		BigDecimal amount = responseRimac.getPayload().getPlan().getPrimaBruta();
+		if(quotationType.equals(ConstantsUtil.StringConstants.C) && amount != null){
 			int updateAmountResult = quotationDAO.updatePremiumAmount(
 					quotationId,
 					insuranceProductId,
 					responseQuotation.getInsuranceModalityType(),
-					responseRimac.getPayload().getPlan().getPrimaBruta(),
+					amount,
 					transactionCode
 			);
 			LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | updateAmountResult: {}",updateAmountResult);
