@@ -69,7 +69,7 @@ public class ProductBusinessImplTest {
         ProductDTO constructProduct = productBusiness.constructProduct(responseRimac.getPayload(), responseQuotation);
 
         Assert.assertNotNull(constructProduct);
-        Assert.assertNull(constructProduct.getPlans().get(0).getInstallmentPlans());
+        Assert.assertEquals(0,constructProduct.getPlans().get(0).getInstallmentPlans().size());
     }
 
 }

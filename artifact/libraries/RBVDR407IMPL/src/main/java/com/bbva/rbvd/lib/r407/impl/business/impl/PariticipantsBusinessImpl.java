@@ -10,6 +10,7 @@ import com.bbva.rbvd.lib.r407.impl.business.IParticipantsBusiness;
 import com.bbva.rbvd.lib.r407.impl.utils.ValidateUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PariticipantsBusinessImpl implements IParticipantsBusiness {
@@ -32,7 +33,7 @@ public class PariticipantsBusinessImpl implements IParticipantsBusiness {
             String documentType = quotationDAO.getPersonalDocType();
             String documentNumber = quotationDAO.getParticipantPersonalId();
 
-            if(ValidateUtils.allValuesNotNullOrEmpty(documentType,documentNumber)){
+            if(ValidateUtils.allValuesNotNullOrEmpty(Arrays.asList(documentType,documentNumber))){
                 participantHolder.setIdentityDocument(getIdentityDocumentFromDB(documentType,documentNumber));
             }
 

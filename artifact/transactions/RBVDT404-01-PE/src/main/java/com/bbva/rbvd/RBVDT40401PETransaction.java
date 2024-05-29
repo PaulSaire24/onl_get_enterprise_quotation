@@ -1,6 +1,7 @@
 package com.bbva.rbvd;
 
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.QuotationInputDTO;
 import com.bbva.rbvd.lib.r407.RBVDR407;
 import com.bbva.elara.domain.transaction.RequestHeaderParamsName;
 import com.bbva.elara.domain.transaction.Severity;
@@ -36,7 +37,12 @@ public class RBVDT40401PETransaction extends AbstractRBVDT40401PETransaction {
 		String transactionCode = (String) this.getContext().getTransactionRequest().getHeader().getHeaderParameter(
 				RequestHeaderParamsName.LOGICALTRANSACTIONCODE);
 
-		EnterpriseQuotationDTO response = rbvdR407.executeGetQuotationLogic(quotationId,traceId,transactionCode);
+		QuotationInputDTO input = new QuotationInputDTO();
+		input.setQuotationId(quotationId);
+		input.setTraceId(traceId);
+		input.setTransactionCode(transactionCode);
+
+		EnterpriseQuotationDTO response = rbvdR407.executeGetQuotationLogic(input);
 
 		if(nonNull(response)) {
 			LOGGER.info("RBVDT40401PETransaction - Response : {}",response);

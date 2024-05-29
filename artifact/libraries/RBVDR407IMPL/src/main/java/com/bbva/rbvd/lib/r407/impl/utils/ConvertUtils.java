@@ -10,9 +10,6 @@ public class ConvertUtils {
 
     private ConvertUtils(){}
 
-    public static String getRequestJsonFormat(final Object requestBody) {
-        return JsonUtils.getInstance().serialization(requestBody);
-    }
 
     public static Date convertStringDateToDate(String dateStr){
         LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -25,11 +22,7 @@ public class ConvertUtils {
     }
 
     public static String convertStringToUpperAndLowerCase(String value){
-        StringBuilder str = new StringBuilder();
-        str.append(value.toUpperCase().charAt(0));
-        str.append(value.toLowerCase().substring(1));
-
-        return str.toString();
+        return Character.toUpperCase(value.charAt(0)) + value.substring(1).toLowerCase();
     }
 
     public static BigDecimal getBigDecimalValue(Object value){
@@ -40,7 +33,7 @@ public class ConvertUtils {
             }else if(value instanceof String){
                 ret = new BigDecimal((String) value);
             }else if(value instanceof Double){
-                ret = BigDecimal.valueOf(((Double) value).doubleValue());
+                ret = BigDecimal.valueOf(((Double) value));
             }else if(value instanceof Integer){
                 ret = BigDecimal.valueOf((Integer) value);
             }

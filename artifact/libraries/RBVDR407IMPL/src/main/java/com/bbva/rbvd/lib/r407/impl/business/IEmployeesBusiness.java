@@ -1,11 +1,10 @@
 package com.bbva.rbvd.lib.r407.impl.business;
 
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EmployeesDTO;
-
-import java.util.Map;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.QuotationDAO;
 
 public interface IEmployeesBusiness {
 
-    EmployeesDTO constructEmployees(Map<String,Object> employeeInfo);
+    EmployeesDTO constructEmployees(QuotationDAO responseQuotation);
 
 }

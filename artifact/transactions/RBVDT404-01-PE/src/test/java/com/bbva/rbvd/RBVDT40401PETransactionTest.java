@@ -1,6 +1,7 @@
 package com.bbva.rbvd;
 
 import com.bbva.elara.domain.transaction.Context;
+import com.bbva.elara.domain.transaction.RequestHeaderParamsName;
 import com.bbva.elara.domain.transaction.Severity;
 import com.bbva.elara.domain.transaction.TransactionParameter;
 import com.bbva.elara.domain.transaction.request.TransactionRequest;
@@ -9,6 +10,7 @@ import com.bbva.elara.domain.transaction.request.header.CommonRequestHeader;
 import com.bbva.elara.test.osgi.DummyBundleContext;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ import javax.annotation.Resource;
 
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.*;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.QuotationDetailDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.QuotationInputDTO;
 import com.bbva.rbvd.lib.r407.RBVDR407;
 import org.junit.Assert;
 import org.junit.Before;
@@ -109,8 +112,9 @@ public class RBVDT40401PETransactionTest {
 		contacto.setAddress("marco.yovera@bbva.com");
 		contacto1.setContact(contacto);
 		contactDetails.add(contacto1);
-
-		PaymentMethodDTO paymentMethod = new PaymentMethodDTO();
+		AmountDTO insuredAmount = new AmountDTO();
+		insuredAmount.setAmount(788222D);
+		insuredAmount.setCurrency("PEN");
 
 		response.setProduct(product);
 		response.setParticipants(participantes);
@@ -119,6 +123,7 @@ public class RBVDT40401PETransactionTest {
 		response.setBusinessAgent(busunessAgent);
 		response.setContactDetails(contactDetails);
 		response.setQuotationDate(LocalDate.now());
+		response.setInsuredAmount(insuredAmount);
 
 		return response;
 	}
@@ -128,19 +133,28 @@ public class RBVDT40401PETransactionTest {
 		// Example to Mock the Header
 		// Mockito.doReturn("ES").when(header).getHeaderParameter(RequestHeaderParamsName.COUNTRYCODE);
 
+		when(header.getHeaderParameter(RequestHeaderParamsName.REQUESTID)).thenReturn("traceId");
+		when(header.getHeaderParameter(RequestHeaderParamsName.LOGICALTRANSACTIONCODE)).thenReturn("RBVDT404");
+		this.addParameter("quotationId", "0812617212");
 
 		EnterpriseQuotationDTO response = createResponseTrx();
-		when(this.rbvdR407.executeGetQuotationLogic(anyString(),anyString(),anyString())).thenReturn(response);
-		Assert.assertNotNull(this.transaction);
+
+		when(this.rbvdR407.executeGetQuotationLogic(anyObject())).thenReturn(response);
+
+
 		this.transaction.execute();
+
 		assertEquals(Severity.OK, this.transaction.getSeverity());
 	}
 	@Test
 	public void testNull() {
 
 		assertNotNull(this.transaction);
-
-		when(rbvdR407.executeGetQuotationLogic(anyString(),anyString(),anyString())).thenReturn(null);
+		QuotationInputDTO input = new QuotationInputDTO();
+		input.setTraceId("traceId");
+		input.setQuotationId("quotationId");
+		input.setTransactionCode("RBVDT404");
+		when(rbvdR407.executeGetQuotationLogic(input)).thenReturn(null);
 		this.transaction.execute();
 
 		assertEquals(Severity.ENR, this.transaction.getSeverity());
