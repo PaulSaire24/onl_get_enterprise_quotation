@@ -6,6 +6,7 @@ import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ValidityPeriodDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.PlanBO;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.InsrncParticipantDAO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.PaymentDAO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.ProductDAO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.QuotationDAO;
@@ -24,8 +25,10 @@ import com.bbva.rbvd.lib.r407.impl.business.impl.PaymentBusinessImpl;
 import com.bbva.rbvd.lib.r407.impl.business.impl.ProductBusinessImpl;
 import com.bbva.rbvd.lib.r407.impl.business.impl.ContactDetailsBusinessImpl;
 import com.bbva.rbvd.lib.r407.impl.service.api.ConsumerExternalService;
+import com.bbva.rbvd.lib.r407.impl.service.dao.IParticipantsDAO;
 import com.bbva.rbvd.lib.r407.impl.service.dao.IProductDAO;
 import com.bbva.rbvd.lib.r407.impl.service.dao.IQuotationDAO;
+import com.bbva.rbvd.lib.r407.impl.service.dao.impl.ParticipantsDAOImpl;
 import com.bbva.rbvd.lib.r407.impl.service.dao.impl.ProductDAOImpl;
 import com.bbva.rbvd.lib.r407.impl.service.dao.impl.QuotationDAOImpl;
 import com.bbva.rbvd.lib.r407.impl.utils.ConvertUtils;
@@ -35,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -65,6 +69,13 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 			PaymentDAO paymentDetails = quotationDAO.getPaymentDetailsByQuotationId(input.getQuotationId());
 			LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | paymentDetails: {}",paymentDetails);
 
+			List<InsrncParticipantDAO> participantsFromDB = null;
+			if(paymentDetails != null && ValidateUtils.allValuesNotNullOrEmpty(Arrays.asList(paymentDetails.getEntity(),
+					paymentDetails.getBranch(),paymentDetails.getAccountId()))){
+				IParticipantsDAO participantsDAO = new ParticipantsDAOImpl(this.pisdR402);
+				participantsFromDB = participantsDAO.getParticipantsByContract(paymentDetails.getEntity(),paymentDetails.getBranch(),paymentDetails.getAccountId());
+			}
+
 			ResponseQuotationDetailBO responseRimac = callRimacService(responseProduct,quotationReference,input.getTraceId());
 			LOGGER.info("RBVDR407Impl - executeGetQuotationLogic() | responseRimac: {}",responseRimac);
 
@@ -85,7 +96,7 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 			response.setBusinessAgent(createBusinessAgentDTO(responseQuotation.getUserAuditId()));
 
 			IParticipantsBusiness participantsBusiness = new PariticipantsBusinessImpl(this.applicationConfigurationService);
-			response.setParticipants(participantsBusiness.constructParticipants(responseQuotation));
+			response.setParticipants(participantsBusiness.constructParticipants(responseQuotation,participantsFromDB));
 
 			response.setQuotationReference(quotationReference);
 			response.setStatus(null);

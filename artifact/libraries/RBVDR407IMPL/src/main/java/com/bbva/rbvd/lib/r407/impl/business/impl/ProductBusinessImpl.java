@@ -2,12 +2,7 @@ package com.bbva.rbvd.lib.r407.impl.business.impl;
 
 import com.bbva.elara.configuration.manager.application.ApplicationConfigurationService;
 
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ProductDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PlanDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.InstallmentPlansDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.CoverageDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.*;
 
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.PlanBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.FinancingBO;
@@ -58,8 +53,28 @@ public class ProductBusinessImpl implements IProductBusiness {
         planDTO.setInstallmentPlans(constructInstallmentPlanFromRimac(planBO));
         planDTO.setCoverages(constructCoveragesFromRimac(planBO.getCoberturas()));
         planDTO.setBenefits(constructBenefitsFromRimac(planBO.getAsistencias()));
+        planDTO.setRates(constructRateFromRimac(planBO.getTasa()));
 
         return Collections.singletonList(planDTO);
+    }
+
+    private static RateDTO constructRateFromRimac(BigDecimal rate){
+        if(rate != null){
+            RateDTO rateDTO = new RateDTO();
+
+            DetailRateDTO itemizeRates = new DetailRateDTO();
+            itemizeRates.setRateType("TASA DE PRIMA");
+            itemizeRates.setDescription("TASA PARA EL CÁLCULO DE LA PRIMA EN BASE AL RANGO DE TRABAJADORES");
+
+            DetailRateUnitDTO itemizeRateUnits = new DetailRateUnitDTO();
+            itemizeRateUnits.setUnitType("PERCENTAGE");
+            itemizeRateUnits.setPercentage(rate.doubleValue());
+            itemizeRates.setItemizeRateUnits(Collections.singletonList(itemizeRateUnits));
+
+            rateDTO.setItemizeRates(Collections.singletonList(itemizeRates));
+            return rateDTO;
+        }
+        return null;
     }
 
     private static AmountDTO constructAmountFromRimac(BigDecimal amount, String currency){

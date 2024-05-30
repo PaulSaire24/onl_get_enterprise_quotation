@@ -20,6 +20,7 @@ public class PaymentBean {
         paymentDAO.setDomicileContractId((String) responsePaymentMap.get(ConstantsUtil.InsuranceContract.FIELD_DOMICILE_CONTRACT_ID));
         paymentDAO.setPaymentFrequencyName((String) responsePaymentMap.get(ConstantsUtil.InsuranceContract.FIELD_PAYMENT_FREQUENCY_NAME));
         paymentDAO.setInsuredAmount(ConvertUtils.getBigDecimalValue(responsePaymentMap.get(ConstantsUtil.InsuranceContract.FIELD_INSURED_AMOUNT)));
+        paymentDAO.setAccountId((String) responsePaymentMap.get("INSRC_CONTRACT_INT_ACCOUNT_ID"));
 
         return paymentDAO;
     }

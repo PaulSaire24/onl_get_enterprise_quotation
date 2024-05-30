@@ -29,9 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -170,6 +168,30 @@ public class RBVDR407Test {
 		return quotationMap;
 	}
 
+	private List<Map<String,Object>> dataParticipants(){
+		List<Map<String,Object>> list = new ArrayList<>();
+
+		Map<String,Object> participant1 = new HashMap<>();
+		participant1.put("PARTICIPANT_ROLE_ID",new BigDecimal("1"));
+		participant1.put("PARTY_ORDER_NUMBER","1");
+		participant1.put("PERSONAL_DOC_TYPE","R");
+		participant1.put("PARTICIPANT_PERSONAL_ID","20788471883");
+		participant1.put("CUSTOMER_ID","00051578");
+
+		list.add(participant1);
+
+		Map<String,Object> participant2 = new HashMap<>();
+		participant2.put("PARTICIPANT_ROLE_ID",new BigDecimal("3"));
+		participant2.put("PARTY_ORDER_NUMBER","1");
+		participant2.put("PERSONAL_DOC_TYPE","L");
+		participant2.put("PARTICIPANT_PERSONAL_ID","72638803");
+		participant2.put("CUSTOMER_ID","97170064");
+
+		list.add(participant2);
+
+		return list;
+	}
+
 
 	/**
 	 * CASO 1.1: FLUJO COMPLETO DE COTIZACIÓN RÁPIDA SIN DATOS DE CONTRATACIÓN DEVUELVE TODOS LOS DATOS POSIBLES CORRECTOS
@@ -180,6 +202,13 @@ public class RBVDR407Test {
 
 		Mockito.when(pisdr402.executeGetASingleRow("PISD.FIND_PAYMENTDATA_FROM_QUOTATIONID", policyQuotaInternalId)).thenReturn(Collections.emptyMap());
 		Mockito.when(pisdr402.executeGetASingleRow("PISD.FIND_PAYMENTDATA_FROM_QUOTATIONREFERENCE", policyQuotaInternalId)).thenReturn(Collections.emptyMap());
+
+		responseRimac.getPayload().getPlan().setFechaInicio("2024-05-20");
+		responseRimac.getPayload().getPlan().setFechaFin("2025-05-20");
+		Mockito.when(this.externalApiConnector.exchange(Mockito.anyString(), Mockito.any(HttpMethod.class), Mockito.any(),
+				(Class<ResponseQuotationDetailBO>) Mockito.any(), Mockito.anyMap())).thenReturn(
+				new ResponseEntity<>(responseRimac, HttpStatus.OK)
+		);
 
 		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(input);
 
@@ -232,6 +261,14 @@ public class RBVDR407Test {
 		Map<String,Object> paymentMap = dataPaymentByQuotationId();
 		Mockito.when(pisdr402.executeGetASingleRow("PISD.FIND_PAYMENTDATA_FROM_QUOTATIONID", policyQuotaInternalId)).thenReturn(paymentMap);
 
+		Map<String,Object> argumentsParticipants = new HashMap<>();
+		argumentsParticipants.put("INSURANCE_CONTRACT_ENTITY_ID","0011");
+		argumentsParticipants.put("INSURANCE_CONTRACT_BRANCH_ID","0284");
+		argumentsParticipants.put("INSRC_CONTRACT_INT_ACCOUNT_ID","4000998713");
+
+		List<Map<String,Object>> participantsMap = dataParticipants();
+		Mockito.when(pisdr402.executeGetListASingleRow("PISD.FIND_PARTICIPANTS_FROM_CONTRACT",argumentsParticipants)).thenReturn(participantsMap);
+
 		EnterpriseQuotationDTO response = rbvdR407Impl.executeGetQuotationLogic(input);
 
 		Assert.assertNotNull(response);
@@ -263,10 +300,9 @@ public class RBVDR407Test {
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(1).getCoverageType().getId());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getBenefits());
 		Assert.assertNull(response.getProduct().getPlans().get(0).getExclusions());
-		Assert.assertNotNull(response.getValidityPeriod());
-		Assert.assertNotNull(response.getValidityPeriod().getStartDate());
-		Assert.assertNotNull(response.getValidityPeriod().getEndDate());
+		Assert.assertNull(response.getValidityPeriod());
 		Assert.assertNotNull(response.getParticipants());
+		Assert.assertEquals(2,response.getParticipants().size());
 		Assert.assertNotNull(response.getPaymentMethod());
 		Assert.assertNotNull(response.getBank());
 		Assert.assertNotNull(response.getInsuredAmount());
@@ -330,7 +366,7 @@ public class RBVDR407Test {
 
 
 	/*
-	 * CASO 2.1: FLUJO COTIZACIÓN NORMAL CON DATOS DE CONTRATACIÓN DE COTIZACIÓN NORMAL DEVUELVE TODOS LOS CAMPOS POSIBLES CORRECTOS
+	 * CASO 2.2: FLUJO COTIZACIÓN NORMAL CON DATOS DE CONTRATACIÓN DE COTIZACIÓN NORMAL DEVUELVE TODOS LOS CAMPOS POSIBLES CORRECTOS
 	 */
 	@Test
 	public void executeTestNormalQuotationWithContractingByNormalQuotationOK() throws IOException{
