@@ -1,5 +1,7 @@
 package com.bbva.rbvd.lib.r407.impl.utils;
 
+import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -10,14 +12,13 @@ public class ConvertUtils {
 
     private ConvertUtils(){}
 
-
     public static Date convertStringDateToDate(String dateStr){
-        LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern(ConstantsUtil.StringConstants.FORMAT_DATE));
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
     public static LocalDate convertStringDateToLocalDate(String dateStr){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(ConstantsUtil.StringConstants.FORMAT_DATE);
         return LocalDate.parse(dateStr,formatter);
     }
 

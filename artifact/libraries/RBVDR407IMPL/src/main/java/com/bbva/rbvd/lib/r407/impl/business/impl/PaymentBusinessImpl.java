@@ -9,7 +9,6 @@ import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.PaymentDAO;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
 import com.bbva.rbvd.lib.r407.impl.business.IPaymentBusiness;
-import com.bbva.rbvd.lib.r407.impl.utils.ConstantUtils;
 import com.bbva.rbvd.lib.r407.impl.utils.ConvertUtils;
 import com.bbva.rbvd.lib.r407.impl.utils.ValidateUtils;
 
@@ -57,12 +56,13 @@ public class PaymentBusinessImpl implements IPaymentBusiness {
     }
 
     private static String getPaymentTypeByContractId(String contractId){
-        if(contractId.length() <= 18 && (contractId.startsWith(ConstantUtils.CARD_PREFIX_4) || contractId.startsWith(ConstantUtils.CARD_PREFIX_5))){
+        if(contractId.length() <= 18 && (contractId.startsWith(ConstantsUtil.StringConstants.CARD_PREFIX_4)
+                || contractId.startsWith(ConstantsUtil.StringConstants.CARD_PREFIX_5))){
             return ConstantsUtil.PaymentMethod.PRODUCT_ID_CARD;
-        }else if(contractId.length() == 20 && contractId.startsWith(ConstantUtils.ACCOUNT_PREFIX)){
+        }else if(contractId.length() == 20 && contractId.startsWith(ConstantsUtil.StringConstants.ACCOUNT_PREFIX)){
             return ConstantsUtil.PaymentMethod.PRODUCT_ID_ACCOUNT;
         }else{
-            return ConstantUtils.OTHER_PRODUCT_ID;
+            return ConstantsUtil.StringConstants.OTHER_PRODUCT_ID;
         }
     }
 

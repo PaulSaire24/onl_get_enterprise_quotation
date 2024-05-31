@@ -112,7 +112,7 @@
 		</dto>
 		<list order="8" name="participants" mandatory="0">
 			<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ParticipantDTO" artifactId="RBVDC402">
-				<parameter order="1" name="id" mandatory="1" type="String" size="20"/>
+				<parameter order="1" name="id" mandatory="0" type="String" size="20"/>
 				<parameter order="2" name="firstName" mandatory="0" type="String" size="100"/>
 				<parameter order="3" name="lastName" mandatory="0" type="String" size="100"/>
 				<parameter order="4" name="secondLastName" mandatory="0" type="String" size="100"/>

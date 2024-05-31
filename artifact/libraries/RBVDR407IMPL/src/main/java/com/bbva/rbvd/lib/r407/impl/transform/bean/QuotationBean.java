@@ -16,8 +16,8 @@ public class QuotationBean {
         quotationDAO.setQuoteDate((String) map.get(ConstantsUtil.QuotationMap.QUOTE_DATE));
         quotationDAO.setInsuranceModalityType((String) map.get(ConstantsUtil.InsurancePrdModality.FIELD_INSURANCE_MODALITY_TYPE));
         quotationDAO.setInsuranceProductType((String) map.get(ConstantsUtil.InsuranceProduct.FIELD_INSURANCE_PRODUCT_TYPE));
-        quotationDAO.setInsuranceModalityName((String) map.get("INSURANCE_MODALITY_NAME"));
-        quotationDAO.setInsurModalityDesc((String) map.get("INSUR_MODALITY_DESC"));
+        quotationDAO.setInsuranceModalityName((String) map.get(ConstantsUtil.InsurancePrdModality.FIELD_INSURANCE_MODALITY_NAME));
+        quotationDAO.setInsurModalityDesc((String) map.get(ConstantsUtil.InsurancePrdModality.FIELD_INSUR_MODALITY_DESC));
         quotationDAO.setInsuranceCompanyModalityId((String) map.get(ConstantsUtil.InsurancePrdModality.FIELD_INSURANCE_COMPANY_MODALITY_ID));
         quotationDAO.setUserAuditId((String) map.get(ConstantsUtil.QuotationMap.USER_AUDIT_ID));
         quotationDAO.setCustomerId((String) map.get(ConstantsUtil.QuotationMap.CUSTOMER_ID));

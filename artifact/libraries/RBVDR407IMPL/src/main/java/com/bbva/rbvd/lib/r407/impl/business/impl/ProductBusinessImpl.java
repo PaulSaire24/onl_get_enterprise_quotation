@@ -1,20 +1,24 @@
 package com.bbva.rbvd.lib.r407.impl.business.impl;
 
 import com.bbva.elara.configuration.manager.application.ApplicationConfigurationService;
-
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.*;
-
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ProductDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PlanDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.RateDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DetailRateDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DetailRateUnitDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.InstallmentPlansDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.CoverageDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.PlanBO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.FinancingBO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.InstallmentFinancingBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.CoverageBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.AssistanceBO;
-
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.FinancingBO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.InstallmentFinancingBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.QuotationDAO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponsePayloadQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
 import com.bbva.rbvd.lib.r407.impl.business.IProductBusiness;
-import com.bbva.rbvd.lib.r407.impl.utils.ConstantUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -149,7 +153,7 @@ public class ProductBusinessImpl implements IProductBusiness {
         CoverageDTO coverageDTO = new CoverageDTO();
         coverageDTO.setId(cobertura.getCobertura().toString());
         coverageDTO.setName(cobertura.getObservacionCobertura());
-        coverageDTO.setDescription(cobertura.getNumeroSueldos() + ConstantUtils.PREFIX_REMUNERATIONS);
+        coverageDTO.setDescription(cobertura.getNumeroSueldos() + ConstantsUtil.StringConstants.PREFIX_REMUNERATIONS);
         coverageDTO.setCoverageType(getCoverageTypeFromRimac(cobertura));
 
         return coverageDTO;
