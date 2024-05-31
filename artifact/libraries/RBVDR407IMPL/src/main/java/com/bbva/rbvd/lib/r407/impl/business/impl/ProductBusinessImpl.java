@@ -62,7 +62,6 @@ public class ProductBusinessImpl implements IProductBusiness {
         planDTO.setRates(constructRateFromRimac(planBO.getTasa()));
 
         LOGGER.info("ProductBusinessImpl - constructPlansInProduct() - planDTO: {}", planDTO);
-
         return Collections.singletonList(planDTO);
     }
 
@@ -81,7 +80,6 @@ public class ProductBusinessImpl implements IProductBusiness {
 
             rateDTO.setItemizeRates(Collections.singletonList(itemizeRates));
 
-            LOGGER.info("ProductBusinessImpl - constructRateFromRimac() - rateDTO: {}", rateDTO);
             return rateDTO;
         }
         return null;
@@ -117,7 +115,6 @@ public class ProductBusinessImpl implements IProductBusiness {
                 installmentPlansDTOS.add(installmentPlan);
             }
 
-            LOGGER.info("ProductBusinessImpl - constructPlansInProduct() - installmentPlansDTOS: {}", installmentPlansDTOS);
             return installmentPlansDTOS;
         }
         return Collections.emptyList();
