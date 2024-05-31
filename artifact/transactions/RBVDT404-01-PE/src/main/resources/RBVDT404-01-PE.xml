@@ -73,6 +73,23 @@
 							<parameter order="3" name="description" mandatory="0" type="String" size="200"/>
 						</dto>
 					</list>
+					<dto order="10" name="rates" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.RateDTO" artifactId="RBVDC402">
+						<list order="1" name="itemizeRates" mandatory="1">
+							<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DetailRateDTO" artifactId="RBVDC402">
+								<parameter order="1" name="rateType" mandatory="0" type="String" size="100"/>
+								<parameter order="2" name="description" mandatory="0" type="String" size="200"/>
+								<parameter order="3" name="calculationDate" mandatory="0" type="Date (YYYY-MM-DD)" size="0"/>
+								<list order="4" name="itemizeRateUnits" mandatory="1">
+									<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DetailRateUnitDTO" artifactId="RBVDC402">
+										<parameter order="1" name="unitType" mandatory="1" type="String" size="20"/>
+										<parameter order="2" name="percentage" mandatory="0" type="Double" size="6"/>
+										<parameter order="3" name="amount" mandatory="0" type="Double" size="20"/>
+										<parameter order="4" name="currency" mandatory="0" type="String" size="3"/>
+									</dto>
+								</list>
+							</dto>
+						</list>
+					</dto>
 				</dto>
 			</list>
 		</dto>
@@ -95,7 +112,7 @@
 		</dto>
 		<list order="8" name="participants" mandatory="0">
 			<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ParticipantDTO" artifactId="RBVDC402">
-				<parameter order="1" name="id" mandatory="1" type="String" size="20"/>
+				<parameter order="1" name="id" mandatory="0" type="String" size="20"/>
 				<parameter order="2" name="firstName" mandatory="0" type="String" size="100"/>
 				<parameter order="3" name="lastName" mandatory="0" type="String" size="100"/>
 				<parameter order="4" name="secondLastName" mandatory="0" type="String" size="100"/>
@@ -122,7 +139,7 @@
 			<parameter order="2" name="installmentFrequency" mandatory="1" type="String" size="20"/>
 			<list order="3" name="relatedContracts" mandatory="0">
 				<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.RelatedContractsDTO" artifactId="RBVDC402">
-					<parameter order="1" name="contractId" mandatory="1" type="String" size="40"/>
+					<parameter order="1" name="contractId" mandatory="0" type="String" size="40"/>
 					<parameter order="2" name="number" mandatory="0" type="String" size="40"/>
 					<dto order="3" name="numberType" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO" artifactId="RBVDC402">
 						<parameter order="1" name="id" mandatory="1" type="String" size="10"/>

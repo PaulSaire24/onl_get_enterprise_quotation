@@ -1,24 +1,26 @@
 package com.bbva.rbvd.lib.r407.impl.business.impl;
 
 import com.bbva.elara.configuration.manager.application.ApplicationConfigurationService;
-
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ProductDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PlanDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.InstallmentPlansDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.RateDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DetailRateDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DetailRateUnitDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.InstallmentPlansDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.CoverageDTO;
-
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.PlanBO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.FinancingBO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.InstallmentFinancingBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.CoverageBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.AssistanceBO;
-
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.FinancingBO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.InstallmentFinancingBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.QuotationDAO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponsePayloadQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
 import com.bbva.rbvd.lib.r407.impl.business.IProductBusiness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -28,6 +30,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProductBusinessImpl implements IProductBusiness {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductBusinessImpl.class);
 
     private final ApplicationConfigurationService applicationConfigurationService;
 
@@ -44,6 +48,8 @@ public class ProductBusinessImpl implements IProductBusiness {
         productDTO.setName(payload.getProducto());
         productDTO.setPlans(constructPlansInProduct(payload.getPlan(),responseQuotation));
 
+        LOGGER.info("ProductBusinessImpl - constructProduct() - productDTO: {}", productDTO);
+
         return productDTO;
     }
 
@@ -57,8 +63,30 @@ public class ProductBusinessImpl implements IProductBusiness {
         planDTO.setInstallmentPlans(constructInstallmentPlanFromRimac(planBO));
         planDTO.setCoverages(constructCoveragesFromRimac(planBO.getCoberturas()));
         planDTO.setBenefits(constructBenefitsFromRimac(planBO.getAsistencias()));
+        planDTO.setRates(constructRateFromRimac(planBO.getTasa()));
 
+        LOGGER.info("ProductBusinessImpl - constructPlansInProduct() - planDTO: {}", planDTO);
         return Collections.singletonList(planDTO);
+    }
+
+    private static RateDTO constructRateFromRimac(BigDecimal rate){
+        if(rate != null){
+            RateDTO rateDTO = new RateDTO();
+
+            DetailRateDTO itemizeRates = new DetailRateDTO();
+            itemizeRates.setRateType("TASA DE PRIMA");
+            itemizeRates.setDescription("TASA PARA EL CÁLCULO DE LA PRIMA EN BASE AL RANGO DE TRABAJADORES");
+
+            DetailRateUnitDTO itemizeRateUnits = new DetailRateUnitDTO();
+            itemizeRateUnits.setUnitType("PERCENTAGE");
+            itemizeRateUnits.setPercentage(rate.doubleValue());
+            itemizeRates.setItemizeRateUnits(Collections.singletonList(itemizeRateUnits));
+
+            rateDTO.setItemizeRates(Collections.singletonList(itemizeRates));
+
+            return rateDTO;
+        }
+        return null;
     }
 
     private static AmountDTO constructAmountFromRimac(BigDecimal amount, String currency){
@@ -93,7 +121,7 @@ public class ProductBusinessImpl implements IProductBusiness {
 
             return installmentPlansDTOS;
         }
-        return null;
+        return Collections.emptyList();
 
     }
 
@@ -124,8 +152,8 @@ public class ProductBusinessImpl implements IProductBusiness {
     private CoverageDTO convertCoverage(CoverageBO cobertura) {
         CoverageDTO coverageDTO = new CoverageDTO();
         coverageDTO.setId(cobertura.getCobertura().toString());
-        coverageDTO.setName(cobertura.getDescripcionCobertura());
-        coverageDTO.setDescription(cobertura.getObservacionCobertura());
+        coverageDTO.setName(cobertura.getObservacionCobertura());
+        coverageDTO.setDescription(cobertura.getNumeroSueldos() + ConstantsUtil.StringConstants.PREFIX_REMUNERATIONS);
         coverageDTO.setCoverageType(getCoverageTypeFromRimac(cobertura));
 
         return coverageDTO;

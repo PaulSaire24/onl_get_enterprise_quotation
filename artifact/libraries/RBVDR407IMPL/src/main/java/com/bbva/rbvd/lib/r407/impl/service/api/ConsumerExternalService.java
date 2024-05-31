@@ -7,7 +7,6 @@ import com.bbva.pisd.lib.r014.PISDR014;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.InputQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponseQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
-import com.bbva.rbvd.lib.r407.impl.utils.ConvertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -31,8 +30,7 @@ public class ConsumerExternalService {
 
     public ResponseQuotationDetailBO executeQuotationDetailRimac(InputQuotationDetailBO params){
 
-        LOGGER.info("RBVDR407Impl - executeQuotationDetailRimac() | input params: {}",
-                ConvertUtils.getRequestJsonFormat(params));
+        LOGGER.info("RBVDR407Impl - executeQuotationDetailRimac() | input params: {}", params);
 
         String externalQuotationId = params.getCotizacion();
         String productName = params.getProducto();
@@ -59,8 +57,7 @@ public class ConsumerExternalService {
                     HttpMethod.GET, entity,ResponseQuotationDetailBO.class,pathParams);
             rimacResponseBody = rimacResponse.getBody();
 
-            LOGGER.info("RBVDR407Impl - executeQuotationDetailRimac() | response rimac body: {}",
-                    ConvertUtils.getRequestJsonFormat(rimacResponseBody));
+            LOGGER.info("RBVDR407Impl - executeQuotationDetailRimac() | response rimac body: {}", rimacResponseBody);
             return rimacResponseBody;
         }catch (RestClientException ex){
             LOGGER.error("RBVDR407Impl - executeQuotationDetailRimac() | RestClientException message {}",ex.getMessage());

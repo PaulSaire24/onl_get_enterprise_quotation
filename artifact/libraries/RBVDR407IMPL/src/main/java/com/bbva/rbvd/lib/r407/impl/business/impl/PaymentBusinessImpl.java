@@ -1,81 +1,89 @@
 package com.bbva.rbvd.lib.r407.impl.business.impl;
 
 import com.bbva.elara.configuration.manager.application.ApplicationConfigurationService;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.BankDTO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PaymentMethodDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.RelatedContractsDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.BankDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.PaymentDAO;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
 import com.bbva.rbvd.lib.r407.impl.business.IPaymentBusiness;
 import com.bbva.rbvd.lib.r407.impl.utils.ConvertUtils;
 import com.bbva.rbvd.lib.r407.impl.utils.ValidateUtils;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class PaymentBusinessImpl implements IPaymentBusiness {
 
-    private final Map<String,Object> paymentDetailsMap;
     private final ApplicationConfigurationService applicationConfigurationService;
 
-
-    public PaymentBusinessImpl(Map<String, Object> paymentDetailsMap,
-                               ApplicationConfigurationService applicationConfigurationService) {
-        this.paymentDetailsMap = paymentDetailsMap;
+    public PaymentBusinessImpl(ApplicationConfigurationService applicationConfigurationService) {
         this.applicationConfigurationService = applicationConfigurationService;
     }
 
     @Override
-    public PaymentMethodDTO constructPaymentMethod() {
-        String paymentType = (String) paymentDetailsMap.get(
-                ConstantsUtil.InsuranceContract.FIELD_AUTOMATIC_DEBIT_INDICATOR_TYPE);
-        String frequency = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_PAYMENT_FREQUENCY_NAME);
+    public PaymentMethodDTO constructPaymentMethod(PaymentDAO paymentDetails) {
+        String debitIndicatorType = paymentDetails.getAutomaticDebitIndicatorType();
+        String frequency = paymentDetails.getPaymentFrequencyName();
+        String domicileContractId = paymentDetails.getDomicileContractId();
 
-        if(ValidateUtils.allValuesNotNullOrEmpty(paymentType,frequency)){
+        if(ValidateUtils.allValuesNotNullOrEmpty(Arrays.asList(debitIndicatorType,frequency,domicileContractId))){
             PaymentMethodDTO paymentMethodDTO = new PaymentMethodDTO();
 
-            paymentMethodDTO.setPaymentType(ConstantsUtil.StringConstants.S.equalsIgnoreCase(paymentType)
-                    ? ConstantsUtil.PaymentMethod.METHOD_TYPE_DIRECT_DEBIT
-                    : ConstantsUtil.PaymentMethod.METHOD_TYPE_CREDIT_CARD);
-            paymentMethodDTO.setInstallmentFrequency(this.applicationConfigurationService.getProperty(
-                    ConvertUtils.convertStringToUpperAndLowerCase(frequency)));
-            paymentMethodDTO.setRelatedContracts(constructRelatedContracts(paymentDetailsMap));
+            String type = getPaymentTypeByContractId(domicileContractId);
+            String paymentMethod = determinePaymentMethod(type, debitIndicatorType);
+            paymentMethodDTO.setPaymentType(paymentMethod);
+            paymentMethodDTO.setInstallmentFrequency(this.applicationConfigurationService.getProperty(ConvertUtils.convertStringToUpperAndLowerCase(frequency)));
+            paymentMethodDTO.setRelatedContracts(constructRelatedContracts(paymentDetails));
 
             return paymentMethodDTO;
         }
         return null;
     }
 
-    private static List<RelatedContractsDTO> constructRelatedContracts(Map<String,Object> paymentDetailsMap){
-        String contractId = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_DOMICILE_CONTRACT_ID);
-        String paymentMethodType = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_PAYMENT_METHOD_TYPE);
-
-        if(ValidateUtils.allValuesNotNullOrEmpty(contractId,paymentMethodType)){
-            List<RelatedContractsDTO> relatedContractList = new ArrayList<>();
-            RelatedContractsDTO relatedContractsDTO = new RelatedContractsDTO();
-
-            relatedContractsDTO.setContractId(contractId);
-            relatedContractsDTO.setNumber(contractId);
-            DescriptionDTO productDTO = new DescriptionDTO();
-            productDTO.setId("T".equalsIgnoreCase(paymentMethodType)
-                    ? ConstantsUtil.PaymentMethod.PRODUCT_ID_CARD : ConstantsUtil.PaymentMethod.PRODUCT_ID_ACCOUNT);
-            relatedContractsDTO.setProduct(productDTO);
-
-            relatedContractList.add(relatedContractsDTO);
-
-            return relatedContractList;
+    private String determinePaymentMethod(String type, String debitIndicatorType) {
+        if (type.equalsIgnoreCase(ConstantsUtil.PaymentMethod.PRODUCT_ID_CARD)) {
+            return ConstantsUtil.PaymentMethod.METHOD_TYPE_CREDIT_CARD;
+        } else if (ConstantsUtil.StringConstants.S.equalsIgnoreCase(debitIndicatorType)) {
+            return ConstantsUtil.PaymentMethod.METHOD_TYPE_DIRECT_DEBIT;
+        } else {
+            return ConstantsUtil.PaymentMethod.METHOD_TYPE_SAVINGS_ACCOUNT;
         }
+    }
 
-        return null;
+    private static String getPaymentTypeByContractId(String contractId){
+        if(contractId.length() <= 18 && (contractId.startsWith(ConstantsUtil.StringConstants.CARD_PREFIX_4)
+                || contractId.startsWith(ConstantsUtil.StringConstants.CARD_PREFIX_5))){
+            return ConstantsUtil.PaymentMethod.PRODUCT_ID_CARD;
+        }else if(contractId.length() == 20 && contractId.startsWith(ConstantsUtil.StringConstants.ACCOUNT_PREFIX)){
+            return ConstantsUtil.PaymentMethod.PRODUCT_ID_ACCOUNT;
+        }else{
+            return ConstantsUtil.StringConstants.OTHER_PRODUCT_ID;
+        }
+    }
+
+    private static List<RelatedContractsDTO> constructRelatedContracts(PaymentDAO paymentDetails){
+        String contractId = paymentDetails.getDomicileContractId();
+        String productId = getPaymentTypeByContractId(contractId);
+
+        RelatedContractsDTO relatedContractsDTO = new RelatedContractsDTO();
+
+        relatedContractsDTO.setContractId(contractId);
+        relatedContractsDTO.setNumber(contractId);
+        DescriptionDTO productDTO = new DescriptionDTO();
+        productDTO.setId(productId);
+        relatedContractsDTO.setProduct(productDTO);
+
+        return Collections.singletonList(relatedContractsDTO);
     }
 
     @Override
-    public BankDTO constructBank() {
-        String entity = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_INSURANCE_CONTRACT_ENTITY_ID);
-        String branch = (String) paymentDetailsMap.get(ConstantsUtil.InsuranceContract.FIELD_CONTRACT_MANAGER_BRANCH_ID);
-
-        if(ValidateUtils.allValuesNotNullOrEmpty(entity,branch)){
+    public BankDTO constructBank(String entity, String branch) {
+        if(ValidateUtils.allValuesNotNullOrEmpty(Arrays.asList(entity,branch))){
             BankDTO bankDTO = new BankDTO();
             bankDTO.setId(entity);
 
@@ -86,6 +94,18 @@ public class PaymentBusinessImpl implements IPaymentBusiness {
             return bankDTO;
         }
 
+        return null;
+    }
+
+    @Override
+    public AmountDTO constructInsuredAmount(BigDecimal amount, String currency) {
+        if(ValidateUtils.allValuesNotNullOrEmpty(Arrays.asList(amount,currency))) {
+            AmountDTO insuredAmount = new AmountDTO();
+            insuredAmount.setAmount(amount.doubleValue());
+            insuredAmount.setCurrency(currency);
+
+            return insuredAmount;
+        }
         return null;
     }
 }

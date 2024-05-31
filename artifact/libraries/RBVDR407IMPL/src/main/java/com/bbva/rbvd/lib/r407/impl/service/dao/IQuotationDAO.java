@@ -1,16 +1,16 @@
 package com.bbva.rbvd.lib.r407.impl.service.dao;
 
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.PaymentDAO;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.QuotationDAO;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dto.QuotationInputDTO;
+
 import java.math.BigDecimal;
-import java.util.Map;
 
 public interface IQuotationDAO {
 
-    Map<String,Object> getQuotationDetailByQuotationId(String quotationId);
+    QuotationDAO getQuotationDetailByQuotationId(String quotationId);
 
-    Map<String, Object> getEmployeesData(String quotationId, BigDecimal insuranceProductId, String modalityType);
+    PaymentDAO getPaymentDetailsByQuotationId(String quotation);
 
-    Map<String,Object> getPaymentDetailsByQuotationId(String quotationId);
-
-    int updatePremiumAmount(String quotationId, BigDecimal insuranceProductId, String modalityType,BigDecimal amount,
-                            String transactionCode);
+    int updatePremiumAmount(QuotationInputDTO input, BigDecimal insuranceProductId, String modalityType, BigDecimal amount);
 }
