@@ -14,7 +14,6 @@ public class EmployeesBusinessImpl implements IEmployeesBusiness {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmployeesBusinessImpl.class);
 
-
     @Override
     public EmployeesDTO constructEmployees(QuotationDAO responseQuotation) {
         if(ValidateUtils.allValuesNotNullOrEmpty(Arrays.asList(responseQuotation.getPayrollAmount(),

@@ -112,7 +112,7 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 				response.setInsuredAmount(paymentBusiness.constructInsuredAmount(paymentDetails.getInsuredAmount(),paymentDetails.getCurrency()));
 			}
 
-			//Actualizar monto de prima real
+			//Actualizar monto de prima real, number payments , moneda y posiblemente frequency
 			String quotationType = getQuotationTypeByQuoteReference(quotationReference);
 			BigDecimal amount = responseRimac.getPayload().getPlan().getPrimaBruta();
 			if(quotationType.equals(ConstantsUtil.StringConstants.C) && amount != null){

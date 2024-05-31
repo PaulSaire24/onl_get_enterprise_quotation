@@ -15,6 +15,8 @@ import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponsePayloadQ
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
 import com.bbva.rbvd.lib.r407.impl.business.IProductBusiness;
 import com.bbva.rbvd.lib.r407.impl.utils.ConstantUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -24,6 +26,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProductBusinessImpl implements IProductBusiness {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductBusinessImpl.class);
 
     private final ApplicationConfigurationService applicationConfigurationService;
 
@@ -40,6 +44,8 @@ public class ProductBusinessImpl implements IProductBusiness {
         productDTO.setName(payload.getProducto());
         productDTO.setPlans(constructPlansInProduct(payload.getPlan(),responseQuotation));
 
+        LOGGER.info("ProductBusinessImpl - constructProduct() - productDTO: {}", productDTO);
+
         return productDTO;
     }
 
@@ -54,6 +60,8 @@ public class ProductBusinessImpl implements IProductBusiness {
         planDTO.setCoverages(constructCoveragesFromRimac(planBO.getCoberturas()));
         planDTO.setBenefits(constructBenefitsFromRimac(planBO.getAsistencias()));
         planDTO.setRates(constructRateFromRimac(planBO.getTasa()));
+
+        LOGGER.info("ProductBusinessImpl - constructPlansInProduct() - planDTO: {}", planDTO);
 
         return Collections.singletonList(planDTO);
     }
@@ -72,6 +80,8 @@ public class ProductBusinessImpl implements IProductBusiness {
             itemizeRates.setItemizeRateUnits(Collections.singletonList(itemizeRateUnits));
 
             rateDTO.setItemizeRates(Collections.singletonList(itemizeRates));
+
+            LOGGER.info("ProductBusinessImpl - constructRateFromRimac() - rateDTO: {}", rateDTO);
             return rateDTO;
         }
         return null;
@@ -107,6 +117,7 @@ public class ProductBusinessImpl implements IProductBusiness {
                 installmentPlansDTOS.add(installmentPlan);
             }
 
+            LOGGER.info("ProductBusinessImpl - constructPlansInProduct() - installmentPlansDTOS: {}", installmentPlansDTOS);
             return installmentPlansDTOS;
         }
         return Collections.emptyList();
