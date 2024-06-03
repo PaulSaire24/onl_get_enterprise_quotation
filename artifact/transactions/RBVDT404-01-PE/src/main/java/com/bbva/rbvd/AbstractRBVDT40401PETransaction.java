@@ -119,4 +119,18 @@ public abstract class AbstractRBVDT40401PETransaction extends AbstractTransactio
 	protected void setInsuredamount(final AmountDTO field){
 		this.addParameter("insuredAmount", field);
 	}
+
+	/**
+	 * Set value for AmountDTO output parameter totalAmount
+	 */
+	protected void setTotalamount(final AmountDTO field){
+		this.addParameter("totalAmount", field);
+	}
+
+	/**
+	 * Set value for AmountDTO output parameter totalAmountWithoutTax
+	 */
+	protected void setTotalamountwithouttax(final AmountDTO field){
+		this.addParameter("totalAmountWithoutTax", field);
+	}
 }

@@ -161,6 +161,38 @@
 			<parameter order="1" name="amount" mandatory="1" type="Double" size="20"/>
 			<parameter order="2" name="currency" mandatory="1" type="String" size="3"/>
 		</dto>
+		<dto order="14" name="totalAmount" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
+			<parameter order="1" name="amount" mandatory="1" type="Double" size="20"/>
+			<parameter order="2" name="currency" mandatory="1" type="String" size="3"/>
+			<dto order="3" name="exchangeRate" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ExchangeRateDTO" artifactId="RBVDC402">
+				<parameter order="1" name="date" mandatory="0" type="Date (YYYY-MM-DD)" size="0"/>
+				<parameter order="2" name="baseCurrency" mandatory="0" type="String" size="3"/>
+				<parameter order="3" name="targetCurrency" mandatory="0" type="String" size="3"/>
+				<dto order="4" name="detail" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DetailDTO" artifactId="RBVDC402">
+					<dto order="1" name="factor" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.FactorDTO" artifactId="RBVDC402">
+						<parameter order="1" name="value" mandatory="0" type="Double" size="20"/>
+						<parameter order="2" name="ratio" mandatory="0" type="Double" size="9"/>
+					</dto>
+					<parameter order="2" name="priceType" mandatory="0" type="String" size="20"/>
+				</dto>
+			</dto>
+		</dto>
+		<dto order="15" name="totalAmountWithoutTax" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
+			<parameter order="1" name="amount" mandatory="0" type="Double" size="20"/>
+			<parameter order="2" name="currency" mandatory="0" type="String" size="3"/>
+			<dto order="3" name="exchangeRate" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ExchangeRateDTO" artifactId="RBVDC402">
+				<parameter order="1" name="exchangeRateDate" mandatory="0" type="Date (YYYY-MM-DD)" size="0"/>
+				<parameter order="2" name="baseCurrency" mandatory="0" type="String" size="3"/>
+				<parameter order="3" name="targetCurrency" mandatory="0" type="String" size="3"/>
+				<dto order="4" name="detail" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DetailDTO" artifactId="RBVDC402">
+					<dto order="1" name="factor" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.FactorDTO" artifactId="RBVDC402">
+						<parameter order="1" name="value" mandatory="0" type="Double" size="20"/>
+						<parameter order="2" name="ratio" mandatory="0" type="Double" size="9"/>
+					</dto>
+					<parameter order="2" name="priceType" mandatory="0" type="String" size="20"/>
+				</dto>
+			</dto>
+		</dto>
 	</paramsOut>
 	<description>getquotation</description>
 </transaction>
