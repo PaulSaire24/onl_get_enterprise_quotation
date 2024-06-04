@@ -2,6 +2,7 @@ package com.bbva.rbvd.lib.r407.impl;
 
 
 import com.bbva.apx.exception.business.BusinessException;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ValidityPeriodDTO;
@@ -112,6 +113,9 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 				response.setInsuredAmount(paymentBusiness.constructInsuredAmount(paymentDetails.getInsuredAmount(),paymentDetails.getCurrency()));
 			}
 
+			response.setTotalAmount(constructTotalAmount(responseRimac.getPayload().getPlan()));
+			response.setTotalAmountWithoutTax(constructTotalAmountWithoutTax(responseRimac.getPayload().getPlan()));
+
 			//Actualizar monto de prima real, number payments , moneda y posiblemente frequency
 			String quotationType = getQuotationTypeByQuoteReference(quotationReference);
 			BigDecimal amount = responseRimac.getPayload().getPlan().getPrimaBruta();
@@ -132,6 +136,30 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 			this.addAdviceWithDescription(bex.getAdviceCode(),bex.getMessage());
 			return null;
 		}
+	}
+
+	private AmountDTO constructTotalAmountWithoutTax(PlanBO planBO){
+		if(ValidateUtils.allValuesNotNullOrEmpty(Arrays.asList(planBO.getPrimaNeta(),planBO.getMoneda()))){
+			AmountDTO totalAmountWithoutTax = new AmountDTO();
+
+			totalAmountWithoutTax.setAmount(planBO.getPrimaNeta().doubleValue());
+			totalAmountWithoutTax.setCurrency(planBO.getMoneda());
+
+			return totalAmountWithoutTax;
+		}
+		return null;
+	}
+
+	private AmountDTO constructTotalAmount(PlanBO planBO){
+		if(ValidateUtils.allValuesNotNullOrEmpty(Arrays.asList(planBO.getMontoIGV(),planBO.getMoneda()))){
+			AmountDTO totalAmount = new AmountDTO();
+
+			totalAmount.setAmount(planBO.getMontoIGV().doubleValue());
+			totalAmount.setCurrency(planBO.getMoneda());
+
+			return totalAmount;
+		}
+		return null;
 	}
 
 	private ResponseQuotationDetailBO callRimacService(ProductDAO responseProduct,String quotationReference,
