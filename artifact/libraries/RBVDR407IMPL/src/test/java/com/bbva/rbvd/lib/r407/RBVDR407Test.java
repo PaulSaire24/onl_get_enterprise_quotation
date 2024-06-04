@@ -205,6 +205,7 @@ public class RBVDR407Test {
 
 		responseRimac.getPayload().getPlan().setFechaInicio("2024-05-20");
 		responseRimac.getPayload().getPlan().setFechaFin("2025-05-20");
+		responseRimac.getPayload().getPlan().getCoberturas().get(0).setPrincipal("S");
 		Mockito.when(this.externalApiConnector.exchange(Mockito.anyString(), Mockito.any(HttpMethod.class), Mockito.any(),
 				(Class<ResponseQuotationDetailBO>) Mockito.any(), Mockito.anyMap())).thenReturn(
 				new ResponseEntity<>(responseRimac, HttpStatus.OK)
@@ -239,6 +240,10 @@ public class RBVDR407Test {
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(2).getDescription());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(0).getCoverageType());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(1).getCoverageType().getId());
+		Assert.assertEquals("MAIN",response.getProduct().getPlans().get(0).getCoverages().get(0).getCoverageType().getId());
+		Assert.assertEquals("OBLIGATORIA",response.getProduct().getPlans().get(0).getCoverages().get(0).getCoverageType().getName());
+		Assert.assertEquals("INCLUDED",response.getProduct().getPlans().get(0).getCoverages().get(1).getCoverageType().getId());
+		Assert.assertEquals("INCLUIDA",response.getProduct().getPlans().get(0).getCoverages().get(1).getCoverageType().getName());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getBenefits());
 		Assert.assertNull(response.getProduct().getPlans().get(0).getExclusions());
 		Assert.assertNotNull(response.getValidityPeriod());

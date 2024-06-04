@@ -161,10 +161,22 @@ public class ProductBusinessImpl implements IProductBusiness {
 
     private DescriptionDTO getCoverageTypeFromRimac(CoverageBO cobertura) {
         DescriptionDTO coverageType = new DescriptionDTO();
-        String coverageId = this.applicationConfigurationService.getProperty(
-                ConstantsUtil.StringConstants.COVERAGE_TYPE_PREFIX + cobertura.getCondicion());
-        String coverageName = this.applicationConfigurationService.getProperty(
-                cobertura.getCondicion() + ConstantsUtil.StringConstants.COVERAGE_NAME_SUFFIX);
+
+        String coverageId;
+        String coverageName;
+
+        if(ConstantsUtil.StringConstants.S.equalsIgnoreCase(cobertura.getPrincipal())){
+            coverageId = this.applicationConfigurationService.getProperty(
+                    ConstantsUtil.StringConstants.COVERAGE_TYPE_PREFIX + "OBL");
+            coverageName = this.applicationConfigurationService.getProperty(
+                    "OBL" + ConstantsUtil.StringConstants.COVERAGE_NAME_SUFFIX);
+        }else{
+            coverageId = this.applicationConfigurationService.getProperty(
+                    ConstantsUtil.StringConstants.COVERAGE_TYPE_PREFIX + "INC");
+            coverageName = this.applicationConfigurationService.getProperty(
+                    "INC" + ConstantsUtil.StringConstants.COVERAGE_NAME_SUFFIX);
+        }
+
         coverageType.setId(coverageId);
         coverageType.setName(coverageName);
         return coverageType;

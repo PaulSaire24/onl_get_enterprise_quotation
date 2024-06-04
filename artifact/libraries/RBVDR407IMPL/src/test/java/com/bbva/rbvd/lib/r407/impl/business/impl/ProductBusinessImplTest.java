@@ -30,11 +30,19 @@ public class ProductBusinessImplTest {
         MockData mockData = MockData.getInstance();
 
         responseRimac = mockData.getResponseQuotationDetailRimac();
+        responseRimac.getPayload().getPlan().getCoberturas().get(0).setPrincipal("S");
 
         responseQuotation = new QuotationDAO();
         responseQuotation.setInsuranceProductType("11");
         responseQuotation.setInsuranceModalityType("01");
         responseQuotation.setInsuranceModalityName("PLAN 1");
+
+        Mockito.when(applicationConfigurationService.getProperty("COVERAGE_TYPE_OBL")).thenReturn("MAIN");
+        Mockito.when(applicationConfigurationService.getProperty("COVERAGE_TYPE_OPC")).thenReturn("ADDITIONAL");
+        Mockito.when(applicationConfigurationService.getProperty("COVERAGE_TYPE_INC")).thenReturn("INCLUDED");
+        Mockito.when(applicationConfigurationService.getProperty("OBL_COVERAGE_NAME")).thenReturn("OBLIGATORIA");
+        Mockito.when(applicationConfigurationService.getProperty("OPC_COVERAGE_NAME")).thenReturn("OPCIONAL");
+        Mockito.when(applicationConfigurationService.getProperty("INC_COVERAGE_NAME")).thenReturn("INCLUIDA");
     }
 
     @Test
