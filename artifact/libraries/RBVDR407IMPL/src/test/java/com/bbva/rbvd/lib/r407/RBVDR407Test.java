@@ -234,7 +234,7 @@ public class RBVDR407Test {
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getInstallmentPlans());
 		Assert.assertEquals(1, response.getProduct().getPlans().get(0).getInstallmentPlans().size());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages());
-		Assert.assertEquals(3, response.getProduct().getPlans().get(0).getCoverages().size());
+		Assert.assertEquals(11, response.getProduct().getPlans().get(0).getCoverages().size());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(0).getId());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(1).getName());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(2).getDescription());
@@ -297,7 +297,7 @@ public class RBVDR407Test {
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getInstallmentPlans());
 		Assert.assertEquals(1, response.getProduct().getPlans().get(0).getInstallmentPlans().size());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages());
-		Assert.assertEquals(3, response.getProduct().getPlans().get(0).getCoverages().size());
+		Assert.assertEquals(11, response.getProduct().getPlans().get(0).getCoverages().size());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(0).getId());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(1).getName());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(2).getDescription());
