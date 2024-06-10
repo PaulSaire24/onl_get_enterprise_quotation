@@ -26,6 +26,13 @@ public class ConvertUtils {
         return Character.toUpperCase(value.charAt(0)) + value.substring(1).toLowerCase();
     }
 
+    public static Double convertStringToDouble(String amount) {
+        if(ValidateUtils.stringIsNullOrEmpty(amount)){
+            return 0.0;
+        }
+        return Double.parseDouble(amount);
+    }
+
     public static BigDecimal getBigDecimalValue(Object value){
         BigDecimal ret = null;
         if(value != null){
@@ -42,6 +49,5 @@ public class ConvertUtils {
 
         return ret;
     }
-
 
 }

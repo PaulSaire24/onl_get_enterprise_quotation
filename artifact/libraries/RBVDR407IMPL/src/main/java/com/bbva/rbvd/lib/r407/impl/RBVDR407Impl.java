@@ -2,7 +2,6 @@ package com.bbva.rbvd.lib.r407.impl;
 
 
 import com.bbva.apx.exception.business.BusinessException;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.EnterpriseQuotationDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ValidityPeriodDTO;
@@ -102,19 +101,18 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 			response.setQuotationReference(quotationReference);
 			response.setStatus(null);
 
+			IPaymentBusiness paymentBusiness = new PaymentBusinessImpl(this.applicationConfigurationService);
+
 			if(paymentDetails == null){
 				response.setPaymentMethod(null);
 				response.setBank(null);
-				response.setInsuredAmount(null);
 			}else{
-				IPaymentBusiness paymentBusiness = new PaymentBusinessImpl(this.applicationConfigurationService);
 				response.setPaymentMethod(paymentBusiness.constructPaymentMethod(paymentDetails));
 				response.setBank(paymentBusiness.constructBank(paymentDetails.getEntity(),paymentDetails.getBranch()));
-				response.setInsuredAmount(paymentBusiness.constructInsuredAmount(paymentDetails.getInsuredAmount(),paymentDetails.getCurrency()));
 			}
 
-			response.setTotalAmount(constructTotalAmount(responseRimac.getPayload().getPlan()));
-			response.setTotalAmountWithoutTax(constructTotalAmountWithoutTax(responseRimac.getPayload().getPlan()));
+			response.setInsuredAmount(paymentBusiness.constructInsuredAmount(responseRimac.getPayload(),paymentDetails));
+
 
 			//Actualizar monto de prima real, number payments , moneda y posiblemente frequency
 			String quotationType = getQuotationTypeByQuoteReference(quotationReference);
@@ -138,29 +136,6 @@ public class RBVDR407Impl extends RBVDR407Abstract {
 		}
 	}
 
-	private AmountDTO constructTotalAmountWithoutTax(PlanBO planBO){
-		if(ValidateUtils.allValuesNotNullOrEmpty(Arrays.asList(planBO.getPrimaNeta(),planBO.getMoneda()))){
-			AmountDTO totalAmountWithoutTax = new AmountDTO();
-
-			totalAmountWithoutTax.setAmount(planBO.getPrimaNeta().doubleValue());
-			totalAmountWithoutTax.setCurrency(planBO.getMoneda());
-
-			return totalAmountWithoutTax;
-		}
-		return null;
-	}
-
-	private AmountDTO constructTotalAmount(PlanBO planBO){
-		if(ValidateUtils.allValuesNotNullOrEmpty(Arrays.asList(planBO.getMontoIGV(),planBO.getMoneda()))){
-			AmountDTO totalAmount = new AmountDTO();
-
-			totalAmount.setAmount(planBO.getMontoIGV().doubleValue());
-			totalAmount.setCurrency(planBO.getMoneda());
-
-			return totalAmount;
-		}
-		return null;
-	}
 
 	private ResponseQuotationDetailBO callRimacService(ProductDAO responseProduct,String quotationReference,
 													   String traceId){

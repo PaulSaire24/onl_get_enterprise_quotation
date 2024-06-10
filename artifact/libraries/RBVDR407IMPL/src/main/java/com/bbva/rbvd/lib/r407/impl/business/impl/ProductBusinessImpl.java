@@ -78,7 +78,7 @@ public class ProductBusinessImpl implements IProductBusiness {
                     RateDTO rateDTO = new RateDTO();
                     List<DetailRateDTO> rates = t.stream().map(tasa -> {
                         DetailRateDTO itemizeRates = new DetailRateDTO();
-                        itemizeRates.setRateType("TASA DE PRIMA");
+                        itemizeRates.setRateType("TASA DE PRIMA - " + tasa.getRango());
                         itemizeRates.setDescription(tasa.getDescripcion());
                         DetailRateUnitDTO itemizeRateUnits = new DetailRateUnitDTO();
                         itemizeRateUnits.setUnitType("PERCENTAGE");
