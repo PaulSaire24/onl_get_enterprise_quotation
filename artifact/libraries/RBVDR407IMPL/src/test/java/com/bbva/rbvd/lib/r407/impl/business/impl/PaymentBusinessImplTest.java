@@ -5,6 +5,7 @@ import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.BankDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PaymentMethodDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.PaymentDAO;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponsePayloadQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,11 +18,10 @@ import java.math.BigDecimal;
 public class PaymentBusinessImplTest {
 
     private PaymentBusinessImpl paymentBusinessImpl;
-    private ApplicationConfigurationService applicationConfigurationService;
 
     @Before
     public void setUp() throws IOException {
-        applicationConfigurationService = Mockito.mock(ApplicationConfigurationService.class);
+        ApplicationConfigurationService applicationConfigurationService = Mockito.mock(ApplicationConfigurationService.class);
         paymentBusinessImpl = new PaymentBusinessImpl(applicationConfigurationService);
 
         Mockito.when(applicationConfigurationService.getProperty("Mensual")).thenReturn("MONTHLY");
@@ -181,7 +181,7 @@ public class PaymentBusinessImplTest {
         paymentDAO.setCurrency("PEN");
         paymentDAO.setEntity("0011");
 
-        AmountDTO insuredAmount = paymentBusinessImpl.constructInsuredAmount(paymentDAO.getInsuredAmount(),paymentDAO.getCurrency());
+        AmountDTO insuredAmount = paymentBusinessImpl.constructInsuredAmount(new ResponsePayloadQuotationDetailBO(),paymentDAO);
 
         Assert.assertNotNull(insuredAmount);
         Assert.assertNotNull(insuredAmount.getAmount());
@@ -203,7 +203,7 @@ public class PaymentBusinessImplTest {
         paymentDAO.setCurrency("");
         paymentDAO.setEntity("0011");
 
-        AmountDTO insuredAmount = paymentBusinessImpl.constructInsuredAmount(paymentDAO.getInsuredAmount(),paymentDAO.getCurrency());
+        AmountDTO insuredAmount = paymentBusinessImpl.constructInsuredAmount(new ResponsePayloadQuotationDetailBO(),paymentDAO);
 
         Assert.assertNull(insuredAmount);
     }

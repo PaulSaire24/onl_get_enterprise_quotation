@@ -11,10 +11,11 @@ import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DetailRateUnitDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.InstallmentPlansDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.CoverageDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.PlanBO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.TaxBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.CoverageBO;
-import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.AssistanceBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.FinancingBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.InstallmentFinancingBO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.AssistanceBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.QuotationDAO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponsePayloadQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
@@ -27,6 +28,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ProductBusinessImpl implements IProductBusiness {
@@ -63,30 +65,30 @@ public class ProductBusinessImpl implements IProductBusiness {
         planDTO.setInstallmentPlans(constructInstallmentPlanFromRimac(planBO));
         planDTO.setCoverages(constructCoveragesFromRimac(planBO.getCoberturas()));
         planDTO.setBenefits(constructBenefitsFromRimac(planBO.getAsistencias()));
-        planDTO.setRates(constructRateFromRimac(planBO.getTasa()));
+        planDTO.setRates(constructRateFromRimac(planBO.getTasas()));
 
         LOGGER.info("ProductBusinessImpl - constructPlansInProduct() - planDTO: {}", planDTO);
         return Collections.singletonList(planDTO);
     }
 
-    private static RateDTO constructRateFromRimac(BigDecimal rate){
-        if(rate != null){
-            RateDTO rateDTO = new RateDTO();
-
-            DetailRateDTO itemizeRates = new DetailRateDTO();
-            itemizeRates.setRateType("TASA DE PRIMA");
-            itemizeRates.setDescription("TASA PARA EL CÁLCULO DE LA PRIMA EN BASE AL RANGO DE TRABAJADORES");
-
-            DetailRateUnitDTO itemizeRateUnits = new DetailRateUnitDTO();
-            itemizeRateUnits.setUnitType("PERCENTAGE");
-            itemizeRateUnits.setPercentage(rate.doubleValue());
-            itemizeRates.setItemizeRateUnits(Collections.singletonList(itemizeRateUnits));
-
-            rateDTO.setItemizeRates(Collections.singletonList(itemizeRates));
-
-            return rateDTO;
-        }
-        return null;
+    private static RateDTO constructRateFromRimac(List<TaxBO> tasas){
+        return Optional.ofNullable(tasas)
+                .filter(t -> !t.isEmpty())
+                .map(t -> {
+                    RateDTO rateDTO = new RateDTO();
+                    List<DetailRateDTO> rates = t.stream().map(tasa -> {
+                        DetailRateDTO itemizeRates = new DetailRateDTO();
+                        itemizeRates.setRateType("TASA DE PRIMA - " + tasa.getRango());
+                        itemizeRates.setDescription(tasa.getDescripcion());
+                        DetailRateUnitDTO itemizeRateUnits = new DetailRateUnitDTO();
+                        itemizeRateUnits.setUnitType("PERCENTAGE");
+                        itemizeRateUnits.setPercentage(tasa.getTasa().doubleValue());
+                        itemizeRates.setItemizeRateUnits(Collections.singletonList(itemizeRateUnits));
+                        return itemizeRates;
+                    }).collect(Collectors.toList());
+                    rateDTO.setItemizeRates(rates);
+                    return rateDTO;
+                }).orElse(null);
     }
 
     private static AmountDTO constructAmountFromRimac(BigDecimal amount, String currency){

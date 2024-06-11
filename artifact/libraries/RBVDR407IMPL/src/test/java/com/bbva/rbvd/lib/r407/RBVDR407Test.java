@@ -206,6 +206,7 @@ public class RBVDR407Test {
 		responseRimac.getPayload().getPlan().setFechaInicio("2024-05-20");
 		responseRimac.getPayload().getPlan().setFechaFin("2025-05-20");
 		responseRimac.getPayload().getPlan().getCoberturas().get(0).setPrincipal("S");
+		responseRimac.getPayload().setDatosParticulares(Collections.emptyList());
 		Mockito.when(this.externalApiConnector.exchange(Mockito.anyString(), Mockito.any(HttpMethod.class), Mockito.any(),
 				(Class<ResponseQuotationDetailBO>) Mockito.any(), Mockito.anyMap())).thenReturn(
 				new ResponseEntity<>(responseRimac, HttpStatus.OK)
@@ -234,7 +235,7 @@ public class RBVDR407Test {
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getInstallmentPlans());
 		Assert.assertEquals(1, response.getProduct().getPlans().get(0).getInstallmentPlans().size());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages());
-		Assert.assertEquals(3, response.getProduct().getPlans().get(0).getCoverages().size());
+		Assert.assertEquals(6, response.getProduct().getPlans().get(0).getCoverages().size());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(0).getId());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(1).getName());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(2).getDescription());
@@ -297,7 +298,7 @@ public class RBVDR407Test {
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getInstallmentPlans());
 		Assert.assertEquals(1, response.getProduct().getPlans().get(0).getInstallmentPlans().size());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages());
-		Assert.assertEquals(3, response.getProduct().getPlans().get(0).getCoverages().size());
+		Assert.assertEquals(6, response.getProduct().getPlans().get(0).getCoverages().size());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(0).getId());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(1).getName());
 		Assert.assertNotNull(response.getProduct().getPlans().get(0).getCoverages().get(2).getDescription());

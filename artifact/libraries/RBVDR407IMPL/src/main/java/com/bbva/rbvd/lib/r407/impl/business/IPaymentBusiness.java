@@ -4,8 +4,7 @@ import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.BankDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.PaymentMethodDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.PaymentDAO;
-
-import java.math.BigDecimal;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponsePayloadQuotationDetailBO;
 
 
 public interface IPaymentBusiness {
@@ -13,6 +12,6 @@ public interface IPaymentBusiness {
     PaymentMethodDTO constructPaymentMethod(PaymentDAO paymentDetails);
 
     BankDTO constructBank(String entity, String branchId);
-    AmountDTO constructInsuredAmount(BigDecimal amount, String currency);
+    AmountDTO constructInsuredAmount(ResponsePayloadQuotationDetailBO payload, PaymentDAO paymentDetails);
 
 }

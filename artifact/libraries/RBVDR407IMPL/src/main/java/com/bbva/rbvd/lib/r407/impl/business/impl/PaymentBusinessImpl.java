@@ -6,13 +6,14 @@ import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.RelatedContractsDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.BankDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO;
 import com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DescriptionDTO;
+import com.bbva.rbvd.dto.enterpriseinsurance.commons.rimac.ParticularDataBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.dao.PaymentDAO;
+import com.bbva.rbvd.dto.enterpriseinsurance.getquotation.rimac.ResponsePayloadQuotationDetailBO;
 import com.bbva.rbvd.dto.enterpriseinsurance.utils.ConstantsUtil;
 import com.bbva.rbvd.lib.r407.impl.business.IPaymentBusiness;
 import com.bbva.rbvd.lib.r407.impl.utils.ConvertUtils;
 import com.bbva.rbvd.lib.r407.impl.utils.ValidateUtils;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -98,14 +99,27 @@ public class PaymentBusinessImpl implements IPaymentBusiness {
     }
 
     @Override
-    public AmountDTO constructInsuredAmount(BigDecimal amount, String currency) {
-        if(ValidateUtils.allValuesNotNullOrEmpty(Arrays.asList(amount,currency))) {
-            AmountDTO insuredAmount = new AmountDTO();
-            insuredAmount.setAmount(amount.doubleValue());
-            insuredAmount.setCurrency(currency);
+    public AmountDTO constructInsuredAmount(ResponsePayloadQuotationDetailBO payloadRimac, PaymentDAO paymentDetails) {
+        ParticularDataBO insuredAmountData = ValidateUtils.getParticularDataByTag(payloadRimac.getDatosParticulares(),"SUMA_ASEGURADA");
 
-            return insuredAmount;
+        if(insuredAmountData != null){
+            return createAmount(ConvertUtils.convertStringToDouble(insuredAmountData.getValor()),payloadRimac.getMoneda());
         }
+
+        if(paymentDetails != null && ValidateUtils.allValuesNotNullOrEmpty(Arrays.asList(paymentDetails.getInsuredAmount(),paymentDetails.getCurrency()))){
+            return createAmount(paymentDetails.getInsuredAmount().doubleValue(),paymentDetails.getCurrency());
+        }
+
         return null;
     }
+
+    private static AmountDTO createAmount(Double amount, String currency){
+        AmountDTO amountDTO = new AmountDTO();
+
+        amountDTO.setAmount(amount);
+        amountDTO.setCurrency(currency);
+
+        return amountDTO;
+    }
+
 }
