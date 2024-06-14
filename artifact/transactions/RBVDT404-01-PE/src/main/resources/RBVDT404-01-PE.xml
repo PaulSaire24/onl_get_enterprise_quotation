@@ -90,6 +90,36 @@
 							</dto>
 						</list>
 					</dto>
+					<dto order="11" name="maximumSalaryAmount" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
+						<parameter order="1" name="amount" mandatory="1" type="Double" size="10"/>
+						<parameter order="2" name="currency" mandatory="1" type="String" size="5"/>
+					</dto>
+					<list order="12" name="taxes" mandatory="0">
+						<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.TaxesDTO" artifactId="RBVDC402">
+							<dto order="1" name="totalTaxes" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
+								<parameter order="1" name="amount" mandatory="1" type="Double" size="10"/>
+								<parameter order="2" name="currency" mandatory="1" type="String" size="5"/>
+							</dto>
+							<list order="2" name="itemizeTaxes" mandatory="0">
+								<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.ItemizeTaxesDTO" artifactId="RBVDC402">
+									<parameter order="1" name="taxType" mandatory="1" type="String" size="7"/>
+									<parameter order="2" name="description" mandatory="0" type="String" size="20"/>
+									<list order="3" name="itemizeTaxUnits" mandatory="1">
+										<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.DetailRateUnitDTO" artifactId="RBVDC402">
+											<parameter order="1" name="unitType" mandatory="1" type="String" size="10"/>
+											<parameter order="2" name="percentage" mandatory="1" type="Double" size="10"/>
+											<parameter order="3" name="amount" mandatory="1" type="Double" size="10"/>
+											<parameter order="4" name="currency" mandatory="1" type="String" size="10"/>
+										</dto>
+									</list>
+								</dto>
+							</list>
+						</dto>
+					</list>
+					<dto order="13" name="totalInstallmentWithoutTax" mandatory="0" package="com.bbva.rbvd.dto.enterpriseinsurance.commons.dto.AmountDTO" artifactId="RBVDC402">
+						<parameter order="1" name="amount" mandatory="1" type="Double" size="10"/>
+						<parameter order="2" name="currency" mandatory="1" type="String" size="10"/>
+					</dto>
 				</dto>
 			</list>
 		</dto>
